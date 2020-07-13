@@ -9,10 +9,10 @@ class Heap:
         return (index - 1) // 2
 
     def left_child(self, index: int):
-        return 2 * index + 1
+        return (2 * index) + 1
 
     def right_child(self, index: int):
-        return 2 * index + 2
+        return (2 * index) + 2
 
     def build_push_down(self, index: int):
         if min(self.heap):
@@ -50,7 +50,7 @@ class Heap:
     def _build_push_down_min(self, index: int):
         # this should be min(self.heap)
         # but it got an error
-        if self.heap[self.left_child(index)][1] > self.heap[index][1]:
+        if min(self.heap[self.left_child(index)][1], self.heap[self.right_child(index)][1]) >= self.heap[index][1]:
             return self.heap
 
         if self.heap[self.left_child(index)][1] < self.heap[self.right_child(index)][1]:
@@ -101,7 +101,7 @@ class Heap:
     def update(self, key: int, value: int):
         for index, element in enumerate(self.heap):
             if element[0] == key:
-                self.heap[key] = (key, value)
+                self.heap[index] = (key, value)
                 if value >= element[1]:
                     self._build_push_down_min(index)
                 else:
