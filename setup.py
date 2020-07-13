@@ -11,11 +11,11 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="lru-cache",
+    name="lruheap",
     version=version,
     author="Ryan Febriansyah",
     author_email="15523163@students.uii.ac.id",
-    description="Python method decorators for store data using LRU cache",
+    description="Python decorators for store in-data memory using LRU cache",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/sodrooome/lru-cache",
@@ -24,8 +24,9 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     classifiers=[
         'Development Status :: 4 - Beta',
-        'Environment :: Console',
-        'Operating System :: POSIX :: OS Independent',
+        'Environment :: Web Environment',
+        'Framework :: Django',
+        'Operating System :: OS Independent',
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'License :: OSI Approved :: MIT License',

@@ -8,11 +8,11 @@ The purpose of using this package itself is at least to be able to dynamically t
 
 ## Usage
 
-The package is still being under developed and haven't packaged and published into PyPi index. However, there is a little explanation regarding the use of this LRU cache. The basic usage is pretty common by using a *List* and accessing that *List* like example :
+The package is still being under developed. However, there is a little explanation regarding the use of this LRU cache. The basic usage is pretty common by using a *List* and accessing that *List* like example :
 
 
 ```python
-from lru import LRUCache
+from lru.lrucache import LRUCache
 
 # set the max of cache capacity
 foo = LRUCache(3)
@@ -33,7 +33,7 @@ print(foo.get_dict())
 print(foo.get_lru_element())
 ```
 
-The `get_dict()` method returns a dictionary of an object with a maximum capacity of 3 (which was initialized at first), whereas the objects that taken from the dictionary based on objects that are most frequently used (this is indicated by the `get()` method), while the `get_lru_element()` method is used for retrieve an object based on the duration when accessing onto the dictionary.
+The `get_dict()` method returns a dictionary of an object with a maximum capacity of 3 (which was initialized at first), whereas the objects that taken from the dictionary based on objects that are recently used (this is indicated by the `get()` method), while the `get_lru_element()` method is used for retrieve an object based on the duration when accessing onto the dictionary.
 
 For further example, hopefully this package can be backported with Python web frameworks such as Django or Flask which can be implemented and supported in the JSON field area, since the return of this LRUCache value is in the form of dictionary which is very common in JSON type.
 
