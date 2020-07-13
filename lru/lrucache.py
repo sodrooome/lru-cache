@@ -1,5 +1,5 @@
 import time
-from heap import Heap # noqa
+from lru.heap import Heap
 
 class LRUCache:
 
@@ -20,15 +20,17 @@ class LRUCache:
         return False
 
     def set(self, key: int, value: int) -> int:
-        access_time = time.time()
+        end = time.perf_counter()
+        start = time.perf_counter()
+        access_time = start - end
 
         if self.get_cache(key):
             # update method is not working
             # should write update() method
             # in heap module
             self.cache.update(key, access_time)
-            self.cache[key] = (value, access_time)
-            return self.cache
+            self.dict[key] = (value, access_time)
+            return self.dict
 
         if self.get_capacity():
             minimum = self.cache.remove()[0]
@@ -42,7 +44,7 @@ class LRUCache:
         if not self.get_cache(key):
             raise KeyError("Cache key not in elements.")
 
-        access_time = time.time()
+        access_time = time.perf_counter()
         self.cache.update(key, access_time)
         value = self.dict[key][0]
         self.dict[key] = (value, access_time)
@@ -56,6 +58,7 @@ class LRUCache:
         return self.dict
 
 # mock test
+"""
 test = LRUCache(3)
 
 test.set(1, "test")
@@ -64,3 +67,6 @@ test.set(3, "fc")
 
 test.get(1)
 print(test.get_dict())
+print(test.get_capacity())
+print(test.get_cache(5))
+"""
