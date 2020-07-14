@@ -27,6 +27,7 @@ class Heap:
         return self.heap
 
     def _build_push_down_iterative(self, index: int):
+        # refactoring this code
         minimum = min(index)
         
         if minimum:
@@ -50,19 +51,22 @@ class Heap:
     def _build_push_down_min(self, index: int):
         # this should be min(self.heap)
         # but it got an error
+        # i dont know why this expression
+        # still getting index out of range
         if min(self.heap[self.left_child(index)][1], self.heap[self.right_child(index)][1]) >= self.heap[index][1]:
             return self.heap
 
         if self.heap[self.left_child(index)][1] < self.heap[self.right_child(index)][1]:
-            self.heap[self.left_child(index)], self.heap[i] = self.heap[index], self.heap[self.left_child(index)]
+            self.heap[self.left_child(index)], self.heap[index] = self.heap[index], self.heap[self.left_child(index)]
             self._build_push_down_min(self.left_child(index))
             return self.heap
 
-        self.heap[self.right_child(i)], self.heap[index] = self.heap[index], self.heap[self.right_child(index)]
+        self.heap[self.right_child(index)], self.heap[index] = self.heap[index], self.heap[self.right_child(index)]
         self._build_push_down_min(self.right_child(index))
         return self.heap
 
     def _build_push_down_max(self, index: int):
+        # refactoring this code
         maximum = max(index)
 
         if self.heap[maximum] > self.heap[index]:
@@ -87,6 +91,7 @@ class Heap:
             index = self.parent(index)
 
     def add(self, key: int, value: int) -> int:
+        """Add and append the element in index."""
         self.heap.append((key, value))
         self._build_push_up_heapify(len(self.heap) - 1)
 
@@ -99,6 +104,7 @@ class Heap:
             return minimum
 
     def update(self, key: int, value: int):
+        """Update key and value element in index."""
         for index, element in enumerate(self.heap):
             if element[0] == key:
                 self.heap[index] = (key, value)
@@ -114,7 +120,9 @@ class Heap:
         for index, element in enumerate(self.heap):
             if element[0] == key:
                 last_element = self.heap.pop()
-                self.heap[i] = last_element
-                self.build_push_down()
+                self.heap[index] = last_element
+                # should return build_push_down
+                # or returned as heapify ?
+                self.build_push_down(index)
                 return self.heap
         return self.heap
