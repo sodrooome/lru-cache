@@ -11,35 +11,110 @@ The purpose of using this package itself is at least to be able to dynamically t
 LRUCache only works in Python version 3.5 and above, you can install it with :
 
 ```sh
-pip install lrucache
+pip install lruheap
 ```
 
-There is a little explanation regarding the use of this LRU cache. The basic usage is pretty common by using a *List* and accessing that *List* like example :
+There is a little explanation regarding the use of this LRU cache. You can see at this simple configuration and explanation for using several method that provided by this package.
 
+### `LRUCache(capacity=128)`
+
+Class constructor for initialize LRUCache method with maximum capacity of cache is 128 when you don't initialize at first. For example:
 
 ```python
 from lru.lrucache import LRUCache
 
-# set the max of cache capacity
 foo = LRUCache(3)
-
-# set the items
-foo.set(1, "value")
-foo.set(2, "cooke")
-foo.set(3, "water")
-foo.set(4, "gets")
-foo.set(5, "sets")
-
-# get the items
-foo.get(3)
-foo.get(4)
-foo.get(5)
-
-print(foo.get_dict())
-print(foo.get_lru_element())
 ```
 
-The `get_dict()` method returns a dictionary of an object with a maximum capacity of 3 (which was initialized at first), whereas the objects that taken from the dictionary based on objects that are recently used (this is indicated by the `get()` method), while the `get_lru_element()` method is used for retrieve an object based on the duration when accessing onto the dictionary.
+### `set()`
+
+Set an objects that wants to be cached in cache element, given the `key` parameters and `value` parameters as integer. For example:
+
+```python
+foo.set(1, "foobar")
+foo.set(2, "bar")
+```
+
+### `get()`
+
+Get the objects based on their key in cache element and access time, given the `key` parameters as integer. This `get()` method can also be used to tracking which objects are often called which will later be identified as recently used objects in a cache element, an object that is often called by this method will be placed in front of the cache element by using `get_lru_element()`. For example:
+
+```python
+foo.get(1)
+foo.get(1) # you can iterate for calling an object
+foo.get(2)
+```
+
+### `get_dict()`
+
+Method for returned a all dictionary of an object in cache element. For example:
+
+```python
+foo.get_dict()
+```
+
+### `get_lru_element()`
+
+Method for retrieved an object based on their key in cache element and the duration when accessing onto the dictionary. 
+If the object is not called by the `get()` method, then objects that have short time for accessing onto dictionary will be placed in beginning of the cache element, if the object is called by the `get()` method, it will placed depending how many objects are called. In this case, this called as recently used. For example:
+
+```python
+foo.get_lru_element()
+```
+
+### `get_capacity()`
+
+Get cache capacity, return `True` if the cache is full otherwiser return `False` when the cache is not full. For example:
+
+```python
+foo.get_capacity()
+```
+
+### `get_cache()`
+
+Get cache in element based on their key, return `True` if the element has a key, otherwise return `False` when element hasn't a key. Given the `key` parameters as integer. For example:
+
+```python
+foo.get_cache(1)
+```
+
+### `clear_all()`
+
+Remove all cache in element. For example:
+
+```python
+foo.clear_all()
+```
+
+### `clear_cache_key()`
+
+Remove cache in element based on their key. Given the `key` as parameters for remove the cache objects. For example:
+
+```python
+foo.clear_cache_key(1)
+```
+
+### `@lru_cache(capacity=128)`
+
+Python decorators using LRUCache classes for cache an object within a function. Default capacity is 128 if you not define it. For example:
+
+```python
+from lru.decorators import lru_cache
+
+@lru_cache(capacity=5)
+def test_lru(x):
+    print("Calling f(" + str(x) + ")")
+    return x
+
+test_lru.set(1, "foo")
+test_lru.set(2, "test")
+test_lru.set(3, "foos")
+test_lru.set(4, "fc")
+test_lru.set(5, "set")
+test_lru.get_capacity()
+```
+
+## Further Example
 
 For further example, hopefully this package can be backported with Python web frameworks such as Django or Flask which can be implemented and supported in the JSON field area, since the return of this LRUCache value is in the form of dictionary which is very common in JSON type. For simple usage in Django, you must setting the LRUCache in installed application within Django settings like this :
 
@@ -99,11 +174,12 @@ Why use object cache level instead of filtering method or get method based on AP
 
 ## Roadmap
 
-- [ ] Use classes as decorators for caching the objects
+- [x] Use classes as decorators for caching the objects
 - [ ] Add expired time for caching objects
 - [ ] Add thread safe parameter
 - [ ] Scale the LRUCache capacity
 - [ ] Backported and integrated with Django request and response
+- [ ] Write unittest for LRUCache
 
 
 ## Contributions
