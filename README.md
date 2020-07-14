@@ -1,5 +1,7 @@
 # LRU Cache
 
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/lruheap) ![PyPI - Status](https://img.shields.io/pypi/status/lruheap) ![PyPI](https://img.shields.io/pypi/v/lruheap) [![Downloads](https://pepy.tech/badge/lruheap)](https://pepy.tech/project/lruheap)
+
 Package for tracking store in-data memory using replacement cache algorithm / LRU cache. The Priority of storing or removing the data based on Min-Max heap algorithm or basic priority queue instead using OrderedDict module that provided by Python.
 
 ## Purpose
