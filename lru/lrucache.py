@@ -12,9 +12,20 @@ class BoundedLRUCache:
 
 class LRUCache(BoundedLRUCache):
 
-    def __init__(self, capacity: int=128):
-        """Constructor for LRU Cache objects."""
+    def __init__(self, capacity: int=128, seconds: int=60*15):
+        """Constructor for LRU Cache objects. Given
+        the several parameter such as:
+
+        :capacity: param for set the cache capacity, maximum
+        number is 128
+
+        :seconds: param for set the duration for store the cache,
+        maximum is 15 minutes
+        
+        :dict: param for set the key and value into dict type
+        """
         self.capacity = capacity
+        self.seconds = seconds
         self.dict = {}
         self.cache = Heap()
 
@@ -33,6 +44,15 @@ class LRUCache(BoundedLRUCache):
     def clear_cache_key(self, key: int) -> int:
         """Clear cache in element based on their key."""
         return self.cache.remove_key(key)
+
+    def get_duration(self, expired_time: int=3600) -> int:
+        """Get duration of cache, return `True` if the duration
+        is exceed for expired time otherwise return `False` 
+        when the duration is even or below the expired time.
+        """
+        if expired_time >= self.seconds:
+            return True
+        return False
 
     def get_cache(self, key: int):
         """Get cache in element based on their key, return
@@ -103,7 +123,8 @@ class LRUCache(BoundedLRUCache):
         return self.dict
 
 # mock test
-test = LRUCache()
+"""
+test = LRUCache(3, 4777)
 
 test.set(1, "test")
 test.set(2, "foo")
@@ -111,6 +132,8 @@ test.set(3, "fc")
 print(test.get_dict())
 print(test.get_capacity())
 print(test.get_cache(5))
+print(test.get_duration())
 # print(test.clear_cache(1))
-print(test.clear_all())
-print(test.get_dict())
+# print(test.clear_all())
+# print(test.get_dict())
+"""
