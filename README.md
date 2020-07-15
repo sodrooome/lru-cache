@@ -18,14 +18,17 @@ pip install lruheap
 
 There is a little explanation regarding the use of this LRU cache. You can see at this simple configuration and explanation for using several method that provided by this package.
 
-### `LRUCache(capacity=128)`
+### `LRUCache(capacity=128, seconds=60*15)`
 
-Class constructor for initialize LRUCache method with maximum capacity of cache is 128 when you don't initialize at first. For example:
+Class constructor for initialize LRUCache method with maximum capacity of cache is 128 and maximum duration of cache is 15 minutes when you don't initialize at first. For example:
 
 ```python
 from lru.lrucache import LRUCache
 
 foo = LRUCache(3)
+
+# or you can set param argument
+foo = LRUCache(capacity=3, seconds=5*15)
 ```
 
 ### `set()`
@@ -53,6 +56,17 @@ Method for returned a all dictionary of an object in cache element. For example:
 
 ```python
 foo.get_dict()
+```
+
+### `get_duration()`
+
+Method for getting duration of cache, return `True` if the duration is exceed for expired time otherwise return `False` when the duration is even or below the expired time. The expired time set as 3600 seconds. For example:
+
+```python
+# will return True if the duration
+# of cache is still under the
+# expired time
+foo.get_duration()
 ```
 
 ### `get_lru_element()`
@@ -116,7 +130,28 @@ test_lru.set(5, "set")
 test_lru.get_capacity()
 ```
 
+### `@lru_cache_time(capacity=128, seconds=60*15)`
+
+Python decorators for LRUCache classes using expired cached time. This is an mock only, **probably** not ready to bump into major version, 
+if you want to try it and there is an error or an unexpected result, please raise the issue. For example :
+
+```python
+from lru.decorators import lru_cache_time
+
+@lru_cache_time(capacity=5, seconds=15)
+def test_lru(x):
+    print("Calling f(" + str(x) + ")")
+    return x
+
+test_lru.set(1, "foo")
+test_lru.set(2, "test")
+```
+
+The difference between set duration of cache if using decorators or not lies when we set the value of the duration cache. By using these `@lru_cache_time` decorators at least it will compact and dynamically clear the cache if the duration exceeds of the maximum duration (15 minutes).
+
 ## Further Example
+
+### Backported with Django
 
 For further example, hopefully this package can be backported with Python web frameworks such as Django or Flask which can be implemented and supported in the JSON field area, since the return of this LRUCache value is in the form of dictionary which is very common in JSON type. For simple usage in Django, you must setting the LRUCache in installed application within Django settings like this :
 
@@ -162,7 +197,35 @@ urlpatterns = [
 
 After that you can run the django server and see it in a web browser based on your endpoint url. **Please remember**, at the moment, each time after you wrapped the object with `JsonResponse`, you need to set the `safe` parameter to `False` because when you set an object with LRUCache, we don't set it to dict type, while the output from `JsonResponse` itself is dict type.
 
-Likewise, the use of LRUcache in Django itself is very limited at this time, because there is a contradiction that is we can't set the objects dynamically, and another obstacle is that if the object that we set is not in the dict type, we need to do the object hashing. Normally, using LRUCache at the web-environment level can be done with the following assumptions like :
+### Backported with Flask
+
+For simple usage in Flask probably occured by using the LRUCache decorators on top of the router flask decorator. Ensure you've already installed Flask with `pip install flask` and then create new file such as the following example :
+
+```python
+# app.py
+
+from flask import Flask
+from lru.decorators import lru_cache_time
+
+app = Flask(__name__)
+
+@lru_cache_time(seconds=60)
+@app.route("/")
+def hello():
+    return "Hello World!"
+
+if __name__ == "__main__":
+    app.run()
+```
+
+After that, you can run the Flask app with the command like `python app.py` and then open it in the browser according to the existing localhost. **As for noted**, the use of the `@lru_cache_time` decorators itself will set the cache capacity and duration of the cache. Since here we only return plain text / html with *Hello World* output, i'm assume we don't need to set the cache capacity. 
+
+Basically, in this example there's a several confusion and caveats :
+
+- After the cache duration that we have set exceeds the maximum limit of expired time, will the value of the function be deleted or not? cause the output is not JSON type (probably i'll given a try to using the `jsonify` method or `make_response`).
+- Secondly, whether the value it still be stored and appears in a web browser or not, if we stop the flask server.
+
+Likewise, the use of LRUcache in Django or Flask itself is very limited at this time, because there is a contradiction that is we can't set the objects dynamically, and another obstacle is that if the object that we set is not in the dict type, we need to do the object hashing. Normally, using LRUCache at the web-environment level can be done with the following assumptions like :
 
 - You want to build web-based streaming services
 - You do object modeling in the database, such as creating objects for a song that is least or most recently heard.
