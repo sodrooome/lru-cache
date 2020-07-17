@@ -240,7 +240,7 @@ Why use object cache level instead of filtering method or get method based on AP
 ## Roadmap
 
 - [x] Use classes as decorators for caching the objects
-- [ ] Add expired time for caching objects
+- [x] Add expired time for caching objects
 - [ ] Add thread safe parameter
 - [ ] Scale the LRUCache capacity
 - [ ] Backported and integrated with Django request and response
