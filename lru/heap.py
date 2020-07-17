@@ -53,7 +53,7 @@ class Heap:
         # but it got an error
         # i dont know why this expression
         # still getting index out of range
-        if min(self.heap[self.left_child(index)][1], self.heap[self.right_child(index)][1]) >= self.heap[index][1]:
+        if min(self.heap[self.left_child(index)], self.heap[self.right_child(index)]) >= self.heap[index]:
             return self.heap
 
         if self.heap[self.left_child(index)][1] < self.heap[self.right_child(index)][1]:
@@ -61,19 +61,27 @@ class Heap:
             self._build_push_down_min(self.left_child(index))
             return self.heap
 
-        self.heap[self.right_child(index)], self.heap[index] = self.heap[index], self.heap[self.right_child(index)]
-        self._build_push_down_min(self.right_child(index))
-        return self.heap
+        if self.heap[self.right_child(index)][1] > self.heap[self.left_child(index)][1]:
+            self.heap[self.right_child(index)], self.heap[index] = self.heap[index], self.heap[self.right_child(index)]
+            self._build_push_down_min(self.right_child(index))
+            return self.heap
 
     def _build_push_down_max(self, index: int):
         # refactoring this code
-        maximum = max(index)
+        # maximum = max(index)
 
-        if self.heap[maximum] > self.heap[index]:
-            self.heap[minimum], self.heap[index] = self.heap[index], self.heap[maximum]
+        if max(self.heap[self.left_child(index)][1], self.heap[self.right_child(index)][1] <= self.heap[index][1]):
+            return self.heap
 
-        if self.heap[maximum] < self.heap[self.parent]:
-            self.heap[maximum], self.heap[self.parent] = self.heap[self.parent], self.heap[maximum]    
+        if self.heap[self.left_child(index)][1] > self.heap[self.right_child(index)][1]:
+            self.heap[self.left_child(index)], self.heap[index] = self.heap[index], self.heap[self.left_child(index)]
+            self._build_push_down_max(self.left_child(index))
+            return self.heap
+
+        if self.heap[self.right_child(index)][1] < self.heap[self.left_child(index)][1]:
+            self.heap[self.right_child(index)], self.heap[index] = self.heap[index], self.heap[self.right_child(index)]
+            self._build_push_down_max(self.right_child(index))
+            return self.heap
 
     def _build_push_up_min(self, index: int):
         if index[self.parent] and self.heap[index] < self.heap[self.parent]:
