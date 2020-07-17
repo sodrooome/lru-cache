@@ -1,4 +1,6 @@
 import time
+import threading
+import weakref
 from lru.heap import Heap
 from abc import ABC, abstractmethod, ABCMeta
 
@@ -53,6 +55,18 @@ class LRUCache(BoundedLRUCache):
         if expired_time >= self.seconds:
             return True
         return False
+
+    def get_ttl(self, key: int) -> int:
+        """Get time-to-live an objects based on their
+        cache keys. Return False if the objects hasn't a key
+        or time-to-live is expired.
+        """
+        if self.get_cache(key):
+            ttl = self.seconds - self.get_cache(key)
+            if self.get_cache(key) >= 0:
+                # got an unexpected result
+                return ttl
+        return None
 
     def get_cache(self, key: int):
         """Get cache in element based on their key, return
@@ -109,7 +123,7 @@ class LRUCache(BoundedLRUCache):
 
         access_time = time.perf_counter()
         self.cache.update(key, access_time)
-        value = self.dict[key][0]
+        value = self.dict.get(key)[0]
         self.dict[key] = (value, access_time)
         return value
 
@@ -122,17 +136,60 @@ class LRUCache(BoundedLRUCache):
         """Returned a dict type in cache element."""
         return self.dict
 
+class ThreadSafe(LRUCache):
+    """Inheritance classes from LRU Cache for enable
+    thread safe parameter. Whenever this class is used
+    for the cached object, the global environment will applies
+    multi-threaded code and make sure that LRUCache method
+    works properly.
+    """
+    def __init__(self, capacity: int=128, seconds: int=60*15, thread_safe=False):
+        # super().__init__(capacity=capacity, seconds=seconds)
+        self.capacity = capacity
+        self.seconds = seconds
+        self.thread_safe = thread_safe
+        self.dict = Heap()
+
+        if thread_safe:
+            thread_safe = self.EmptyCache(threading.Thread)
+            thread_safe.start()
+
+    class EmptyCache(threading.Thread):
+        # thread same as the daemon
+        thread = True
+
+        def __init__(self, cache: int, duration: int=60):
+            # thread must be terminate
+            # if thread not terminat, 
+            # it will be looping over again
+            # for right now using this method
+            # to terminate thread
+            def kill_self(self):
+                del self
+
+            self.cache_reference = weakref.ref(cache)
+            self.duration = duration
+            super(ThreadSafe.EmptyCache, self).__init__()
+
+        def start_thread_safe(self):
+            while self.cache_reference():
+                _get_cache = self.cache_reference
+                if _get_cache:
+                    next_cache_expired = _get_cache.cleanup()
+                    if next_cache_expired is None:
+                        time.sleep(self.duration)
+                    else:
+                        time.sleep(next_cache_expired + 1)
+                _get_cache = None
+
 # mock test
 """
-test = LRUCache(3, 4777)
+test = LRUCache(128, 60, False)
 
-test.set(1, "test")
-test.set(2, "foo")
-test.set(3, "fc")
-print(test.get_dict())
-print(test.get_capacity())
-print(test.get_cache(5))
-print(test.get_duration())
+test.set(1, "value")
+test.get(1)
+
+# print(test.get_ttl(1))
 # print(test.clear_cache(1))
 # print(test.clear_all())
 # print(test.get_dict())
