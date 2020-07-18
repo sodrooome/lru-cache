@@ -131,6 +131,6 @@ class Heap:
                 self.heap[index] = last_element
                 # should return build_push_down
                 # or returned as heapify ?
-                self.build_push_down(index)
+                self._build_push_down_min(index)
                 return self.heap
         return self.heap

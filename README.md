@@ -94,6 +94,14 @@ Get cache in element based on their key, return `True` if the element has a key,
 foo.get_cache(1)
 ```
 
+### `get_ttl()`
+
+Get time-to-live (TTL) duration for cache, will return a value, where the value is the remaining time from the cache duration that has been set previously. Given the `key` parameters as integer. Th countdown time will be reduced by one second according to the cache duration that we have set before, if you set it to within 5 seconds, when using this method it will display a value of 4 which means its the remaining duration of our cache, and so on until the result displayed is set as`None`. For example:
+
+```python
+foo.get_ttl(1)
+```
+
 ### `clear_all()`
 
 Remove all cache in element. For example:
@@ -107,7 +115,17 @@ foo.clear_all()
 Remove cache in element based on their key. Given the `key` as parameters for remove the cache objects. For example:
 
 ```python
+# this will remove cache
+# object based on first index
 foo.clear_cache_key(1)
+```
+
+### `is_empty()`
+
+Check whether the current cache in element is empty or not. Will return `True` if the cache element is empty and `False` when the cache element is full of objects. For example:
+
+```python
+foo.is_empty()
 ```
 
 ### `@lru_cache(capacity=128)`
@@ -148,6 +166,14 @@ test_lru.set(2, "test")
 ```
 
 The difference between set duration of cache if using decorators or not lies when we set the value of the duration cache. By using these `@lru_cache_time` decorators at least it will compact and dynamically clear the cache if the duration exceeds of the maximum duration (15 minutes).
+
+### Enable `thread_safe` parameter
+
+By enabling `thread_safe` parameter into `True`, it will be possible to safely to call a function together. For example, if we create a shared task (functions a and b) where the shared task invokes a resource such as object from function c, then the object can safely be called and can be execute on both functions a and b (thus, its called a deadlock if we dont use `thread_safe` parameter to execute two functions from one resource). **As for concerns**, the use of `thread_safe` might be reduce the performance. For example:
+
+```python
+test_lru = LRUCache(3, 1, thread_safe=True)
+```
 
 ## Further Example
 
@@ -224,6 +250,7 @@ Basically, in this example there's a several confusion and caveats :
 
 - After the cache duration that we have set exceeds the maximum limit of expired time, will the value of the function be deleted or not? cause the output is not JSON type (probably i'll given a try to using the `jsonify` method or `make_response`).
 - Secondly, whether the value it still be stored and appears in a web browser or not, if we stop the flask server.
+- Using LRUCache decorators in Django cause a problem in the clickjacking middleware section, we can temporarily set `X-FRAME-OPTIONS` to `DENY` in `settings.py` file inside Django root project if we want to use LRUCache decorators.
 
 Likewise, the use of LRUcache in Django or Flask itself is very limited at this time, because there is a contradiction that is we can't set the objects dynamically, and another obstacle is that if the object that we set is not in the dict type, we need to do the object hashing. Normally, using LRUCache at the web-environment level can be done with the following assumptions like :
 
@@ -232,6 +259,10 @@ Likewise, the use of LRUcache in Django or Flask itself is very limited at this 
 - You set the song object with LRUCache, so that every time you open your site, that song will appear.
 
 Another example of using this LRU cache is that you want to display a book that is most often searched by keywords, dynamically remove an object that is not or least used, store data of users who frequently visit our site and many others.
+
+## Running the tests
+
+For running the test, you can use command `python -m unittest tests`
 
 ## Why using this, instead of X?
 
@@ -244,7 +275,7 @@ Why use object cache level instead of filtering method or get method based on AP
 - [ ] Add thread safe parameter
 - [ ] Scale the LRUCache capacity
 - [ ] Backported and integrated with Django request and response
-- [ ] Write unittest for LRUCache
+- [x] Write unittest for LRUCache
 
 
 ## Contributions
