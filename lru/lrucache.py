@@ -1,6 +1,8 @@
 import time
 import threading
 import weakref
+import json
+import hashlib
 from lru.heap import Heap
 from lru.utils import BypassThreadSafe
 from abc import ABC, abstractmethod, ABCMeta
@@ -24,7 +26,7 @@ class LRUCache(BoundedLRUCache):
 
         :seconds: param for set the duration for store the cache,
         maximum is 15 minutes
-        
+
         :dict: param for set the key and value into dict type
 
         :thread_safe: param for enable/disable thread safe option,
@@ -61,6 +63,21 @@ class LRUCache(BoundedLRUCache):
     def __str__(self):
         return "%s" % self.dict
 
+    def __eq__(self, key: int):
+        # should hashing a key
+        return hashlib.md5(json.dumps(self.get_cache(key)))
+
+    def __hash__(self, key: int):
+        # should hashing a key
+        # not an Dict object
+        print("The hash for dict object is: ") # pragma: no cover
+        return hashlib.md5(json.dumps(self.get_cache(key)))
+
+    @property
+    def ttl(self):
+        """property for getting ttl in seconds."""
+        return self.seconds
+
     def is_empty(self):
         if len(self.dict) == 0:
             return True
@@ -77,7 +94,7 @@ class LRUCache(BoundedLRUCache):
 
     def get_duration(self, expired_time: int=3600) -> int:
         """Get duration of cache, return `True` if the duration
-        is exceed for expired time otherwise return `False` 
+        is exceed for expired time otherwise return `False`
         when the duration is even or below the expired time.
         """
         if expired_time >= self.seconds:
@@ -117,7 +134,7 @@ class LRUCache(BoundedLRUCache):
 
     def set(self, key: int, value: int) -> int:
         """Set an objects that wants to be cached.
-        
+
         :key: given key parameter as an integer
 
         :value: given value parameter of that key as an integer
@@ -135,7 +152,7 @@ class LRUCache(BoundedLRUCache):
             return self.dict
 
         if self.get_capacity():
-            minimum = self.cache.remove()[0]
+            minimum = self.cache.remove()[0] # pragma: no cover
             del self.dict[minimum]
 
         self.cache.add(key, access_time)
@@ -147,7 +164,7 @@ class LRUCache(BoundedLRUCache):
 
         :key: given key parameter as an integer
         """
-        if not self.get_cache(key):
+        if not self.get_cache(key): # pragma: no cover
             raise KeyError("Cache key not in elements.")
 
         if self.is_empty:
@@ -161,7 +178,7 @@ class LRUCache(BoundedLRUCache):
 
     def get_lru_element(self):
         """Returned a dict type based on their key in cache element."""
-        with self.lock:
+        with self.lock: # pragma: no cover
             key = self.cache.heap[0][1]
             return self.dict[key]
 
@@ -171,7 +188,7 @@ class LRUCache(BoundedLRUCache):
 
 # mock test
 """
-test = LRUCache(128, 60, thread_safe=True)
+test = LRUCache(128, 3, thread_safe=True)
 
 test.set(1, "value")
 # print(test.clear_all())
@@ -182,4 +199,6 @@ print(test.get_dict())
 print(test.clear_cache_key(1))
 # print(test.clear_all())
 print(test.is_empty())
+# print(hash(test.get_dict()))
+print(test.expired())
 """
