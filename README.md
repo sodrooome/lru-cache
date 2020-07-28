@@ -276,7 +276,7 @@ Why use object cache level instead of filtering method or get method based on AP
 - [ ] Scale the LRUCache capacity
 - [ ] Backported and integrated with Django request and response
 - [x] Write unittest for LRUCache
-- [ ] Improve code coverage
+- [ ] Improve code coverage up to 90 %
 
 
 ## Contributions
