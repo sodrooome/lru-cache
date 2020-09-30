@@ -33,16 +33,21 @@ class Heap:
         return self.heap
 
     def _build_push_down_iterative(self, index: int):
-        # refactoring this code
-        # minimum = min(index)
+        if self._is_leaf(index):
+            return self.heap
 
-        if min(self.heap[self.left_child(index)]) > self.heap[index]: # pragma: no cover
+        if self._single_child(index):
+            if self.heap[self.left_child(index)][1] < self.heap[index][1]:
+                self.heap[self.left_child(index)], self.heap[index] = self.heap[index], self.heap[self.left_child(index)]
+            return self.heap
+        
+        if min(self.heap[self.left_child(index)][1], self.heap[self.right_child(index)][1]) > self.heap[index][1]:
+            return self.heap
+
+        if self.heap[self.left_child(index)][1] < self.heap[self.right_child(index)][1]:
             self.heap[self.left_child(index)], self.heap[index] = self.heap[index], self.heap[self.left_child(index)]
-            if self.heap[self.left_child(index)] < self.heap[self.parent]:
-               self.heap[self.left_child(index)], self.heap[self.parent] = self.heap[self.parent], self.heap[self.left_child(index)]
-               return _build_push_down_max(self.index, self.left_child)
-        elif self.heap[self.left_child(index)] < self.heap[index]:
-            self.heap[self.left_child(index)], self.heap[index] = self.heap[index], self.heap[self.left_child(index)]
+            self._build_push_down_iterative(self.right_child(index))
+            return self.heap
 
     def _build_push_up_heapify(self, index: int) -> int:
         """Bubble up algorithm."""
@@ -89,19 +94,22 @@ class Heap:
             return self.heap
 
     def _build_push_up_min(self, index: int):
-        if index[self.parent] and self.heap[index] < self.heap[self.parent]: # pragma: no cover
-            self.heap[index], self.heap[self.parent] = self.heap[self.parent], self.heap[index]
-            return _build_push_up_min(self.heap, self.parent(index))
+        if self.heap[self.parent(index)] and self.heap[self.left_child(index)] < self.heap[self.parent(index)]: # pragma: no cover
+            self.heap[self.parent(index)], self.heap[index] = self.heap[index], self.heap[self.parent(self.parent(index))]
+            self._build_push_down_min(self.left_child(index))
+            return self.heap
 
     def _build_push_up_max(self, index: int):
-        if index[self.parent] and self.heap[index] > self.heap[self.parent]: # pragma: no cover
-            self.heap[index], self.heap[self.parent] = self.heap[self.parent], self.heap[index]
-            return _build_push_up_max(self.heap, self.parent(index))
+        if self.heap[self.parent(index)] and self.heap[self.right_child(index)][1] > self.heap[self.parent(index)][1]: # pragma: no cover
+            self.heap[self.parent(index)], self.heap[index] = self.heap[index], self.heap[self.parent(self.parent(index))]
+            self._build_push_down_max(self.right_child(index))
+            return self.heap
 
     def _build_push_up_iterative(self, index: int):
-        while index[self.parent] and self.heap[index] < self.heap[self.parent]: # pragma: no cover
-            self.heap[index], self.heap[self.parent] = self.heap[self.parent], self.heap[index]
-            index = self.parent(index)
+        while self.heap[self.parent(index)] and self.heap[index] < self.heap[self.parent(index)]: # pragma: no cover
+            self.heap[self.parent(index)], self.heap[index] = self.heap[index], self.heap[self.parent(index)]
+            self._build_push_down_iterative(self.parent(index))
+            return self.heap
 
     def add(self, key: int, value: int) -> int:
         """Add and append the element in index."""
@@ -112,7 +120,7 @@ class Heap:
         """Remove minimum element in index."""
         minimum = self.heap[0] # pragma: no cover
         if minimum:
-            minimum = self.heap.pop()
+            minimum = self.heap.pop()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
             self.build_push_down(0)
             return minimum
 
