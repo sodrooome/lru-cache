@@ -44,21 +44,3 @@ def lru_cache_time(capacity: int=128, seconds: int=60*15, **kwargs) -> int:
             return func(*args, **kwargs)
         return wrapped
     return wrapper
-
-
-# mock test
-"""
-@lru_cache_time(capacity=5, seconds=60)
-def test_lru(x):
-    print("Calling f(" + str(x) + ")")
-    return x
-
-test_lru.set(1, "foo")
-test_lru.set(2, "test")
-test_lru.set(3, "foos")
-test_lru.set(4, "fc")
-test_lru.set(5, "set")
-print(test_lru.get_capacity())
-print(test_lru.get_dict())
-print(test_lru.clear_all())
-"""

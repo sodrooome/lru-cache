@@ -38,8 +38,7 @@ class LRUCache(BoundedLRUCache):
         self.cache = Heap()
         self.lock = threading.RLock() if thread_safe else BypassThreadSafe()
 
-        # user type checking
-        # will bump into latest version -> 0.1.3
+        # merged at 0.1.4
         if not isinstance(capacity, int):
             raise ValueError("Expected to set the capacity of cache.")
         elif capacity > 128:
@@ -169,14 +168,14 @@ class LRUCache(BoundedLRUCache):
 
         if self.is_empty:
             raise KeyError("Nor between cache key and cache is empty.")
-
+            
         access_time = time.perf_counter()
         self.cache.update(key, access_time)
         value = self.dict.get(key)[0]
         self.dict[key] = (value, access_time)
         return value
 
-    def get_lru_element(self):
+    def get_lru_element(self, key: int):
         """Returned a dict type based on their key in cache element."""
         with self.lock: # pragma: no cover
             key = self.cache.heap[0][1]
@@ -185,20 +184,3 @@ class LRUCache(BoundedLRUCache):
     def get_dict(self):
         """Returned a dict type in cache element."""
         return self.dict
-
-# mock test
-"""
-test = LRUCache(128, 3, thread_safe=True)
-
-test.set(1, "value")
-# print(test.clear_all())
-#test.get(1)
-print(test.is_empty())
-print(test.get_dict())
-# print(test.get_ttl(1))
-print(test.clear_cache_key(1))
-# print(test.clear_all())
-print(test.is_empty())
-# print(hash(test.get_dict()))
-print(test.expired())
-"""
