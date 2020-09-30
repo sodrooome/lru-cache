@@ -1,6 +1,6 @@
 # LRU Cache
 
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/lruheap) ![PyPI - Status](https://img.shields.io/pypi/status/lruheap) ![PyPI](https://img.shields.io/pypi/v/lruheap) [![Downloads](https://pepy.tech/badge/lruheap)](https://pepy.tech/project/lruheap) [![Build Status](https://travis-ci.org/sodrooome/lru-cache.svg?branch=master)](https://travis-ci.org/sodrooome/lru-cache) [![Maintainability](https://api.codeclimate.com/v1/badges/9b20a52c48f76cc8d6ac/maintainability)](https://codeclimate.com/github/sodrooome/lru-cache/maintainability) [![codecov](https://codecov.io/gh/sodrooome/lru-cache/branch/master/graph/badge.svg)](https://codecov.io/gh/sodrooome/lru-cache)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/lruheap) ![PyPI - Status](https://img.shields.io/pypi/status/lruheap) ![PyPI](https://img.shields.io/pypi/v/lruheap) [![Downloads](https://pepy.tech/badge/lruheap)](https://pepy.tech/project/lruheap) [![Build Status](https://travis-ci.org/sodrooome/lru-cache.svg?branch=master)](https://travis-ci.org/sodrooome/lru-cache) [![codecov](https://codecov.io/gh/sodrooome/lru-cache/branch/master/graph/badge.svg)](https://codecov.io/gh/sodrooome/lru-cache)
 
 Package for tracking store in-data memory using replacement cache algorithm / LRU cache. The Priority of storing or removing the data based on Min-Max heap algorithm or basic priority queue instead using OrderedDict module that provided by Python.
 
