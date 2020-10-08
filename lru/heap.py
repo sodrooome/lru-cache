@@ -66,7 +66,7 @@ class Heap(object):
         for index, element in enumerate(self.heap):
             if self.parent(index) >= 0:
                 if self.heap[self.parent(index)][1] > self.heap[index][1]:
-                    print self.heap[self.parent(index)], self.heap[index]
+                    print(self.heap[self.parent(index)], self.heap[index])
                     return False
         return True
 
