@@ -1,19 +1,19 @@
 # LRU Cache
 
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/lruheap) ![PyPI - Status](https://img.shields.io/pypi/status/lruheap) ![PyPI](https://img.shields.io/pypi/v/lruheap) [![Downloads](https://pepy.tech/badge/lruheap)](https://pepy.tech/project/lruheap) [![Build Status](https://travis-ci.org/sodrooome/lru-cache.svg?branch=master)](https://travis-ci.org/sodrooome/lru-cache) [![codecov](https://codecov.io/gh/sodrooome/lru-cache/branch/master/graph/badge.svg)](https://codecov.io/gh/sodrooome/lru-cache)
+ ![PyPI - Status](https://img.shields.io/pypi/status/lruheap) [![Downloads](https://pepy.tech/badge/lruheap)](https://pepy.tech/project/lruheap) [![Build Status](https://travis-ci.org/sodrooome/lru-cache.svg?branch=master)](https://travis-ci.org/sodrooome/lru-cache) [![codecov](https://codecov.io/gh/sodrooome/lru-cache/branch/master/graph/badge.svg)](https://codecov.io/gh/sodrooome/lru-cache)
 
 Package for tracking store in-data memory using replacement cache algorithm / LRU cache. The Priority of storing or removing the data based on Min-Max heap algorithm or basic priority queue instead using OrderedDict module that provided by Python.
 
 ## Purpose
 
-The purpose of using this package itself is at least to be able to dynamically tracking. inserting, and removing least frequently used in-data memory or in an element. Another purposes, with the use of python decorator or the method looks like, it's also possible to figure it out whether the data in the cache is full or not (it's called **LRU eviction**), since Min-Max heap algorithm is using *O(1)* complexity for basic insertion and searching, it's also possible to efficiently accessing the store in-data memory based on most frequently used method.
+The purpose of using this package itself is at least to be able to dynamically tracking. inserting, and removing least frequently used in-data memory or in an element. Another purposes, with the use of python decorator or the method looks like, it's also possible to figure it out whether the data in the cache is full or not (it's called **LRU eviction**), since Min-Max heap algorithm is using **O(1)** complexity for basic insertion and searching, it's also possible to efficiently accessing the store in-data memory based on most frequently used method.
 
 ## Usage
 
 LRUCache only works in Python version 3.5 and above, you can install it with :
 
 ```sh
-pip install lruheap
+pip3 install lruheap
 ```
 
 There is a little explanation regarding the use of this LRU cache. You can see at this simple configuration and explanation for using several method that provided by this package.
