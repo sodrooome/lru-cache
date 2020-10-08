@@ -34,7 +34,7 @@ class LRUCacheTest(unittest.TestCase):
         self.assertTrue(self.testLRU.get_duration(expired_time=4800))
 
     def test_get_least_recently_used(self):
-        self.assertFalse(self.testLRU.get_lru_element())
+        self.assertTrue(self.testLRU.get_lru_element())
 
     def test_get_ttl(self):
         self.assertTrue(self.testLRU.get_ttl(1))
