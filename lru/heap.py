@@ -1,9 +1,12 @@
-class Heap:
+class Heap(object):
     """Base class for heap object."""
 
-    def __init__(self):
+    def __init__(self, cache_list=[]):
         """Initialize constructor for heap object."""
         self.heap = []
+        if len(cache_list) > 0:
+            for element in cache_list:
+                self.add(element[0], element[1])
 
     def parent(self, index: int) -> int:
         return (index - 1) // 2
@@ -16,100 +19,56 @@ class Heap:
 
     def build_push_down(self, index: int) -> int:
         if min(self.heap): # pragma: no cover
-            return self._build_push_down_min(index)
+            return self._build_push_down_heapify(index)
         else:
-            return self._build_push_down_max(index)
+            return self._build_push_up_heapify(index)
 
     def _single_child(self, index: int):
-        return self.left_child(index) < len(self.heap) and self.right_child(index) > len(self.heap)
+        return self.left_child(index) < len(self.heap) and self.right_child(index) >= len(self.heap) # pragma: no cover
 
     def _is_leaf(self, index: int):
-        return self.left_child(index) > len(self.heap) and self.right_child(index) > len(self.heap)
+        return self.left_child(index) >= len(self.heap) and self.right_child(index) >= len(self.heap) # pragma: no cover
 
     def build_floyd_heap(self, index: int):
         """Build Min-Heap based on Floyd's linear-time heap construction algorithm."""
         for index in enumerate(self.heap // 2): # pragma: no cover
-            return build_push_down(self.heap, index)
+            return _build_push_down_heapify(self.heap, index)
         return self.heap
 
-    def _build_push_down_iterative(self, index: int):
-        if self._is_leaf(index):
+    def _build_push_down_heapify(self, index: int):
+        if self._is_leaf(index): # pragma: no cover
             return self.heap
 
-        if self._single_child(index):
+        if self._single_child(index): # pragma: no cover
             if self.heap[self.left_child(index)][1] < self.heap[index][1]:
                 self.heap[self.left_child(index)], self.heap[index] = self.heap[index], self.heap[self.left_child(index)]
             return self.heap
         
-        if min(self.heap[self.left_child(index)][1], self.heap[self.right_child(index)][1]) > self.heap[index][1]:
+        if min(self.heap[self.left_child(index)][1], self.heap[self.right_child(index)][1]) >= self.heap[index][1]: # pragma: no cover
             return self.heap
 
-        if self.heap[self.left_child(index)][1] < self.heap[self.right_child(index)][1]:
+        if self.heap[self.left_child(index)][1] < self.heap[self.right_child(index)][1]: # pragma: no cover
             self.heap[self.left_child(index)], self.heap[index] = self.heap[index], self.heap[self.left_child(index)]
-            self._build_push_down_iterative(self.right_child(index))
+            self._build_push_down_heapify(self.right_child(index))
             return self.heap
 
     def _build_push_up_heapify(self, index: int) -> int:
         """Bubble up algorithm."""
-        if self.parent(index) > 0:
+        if self.parent(index) >= 0:
             if self.heap[self.parent(index)][1] > self.heap[index][1]: # pragma: no cover
                 self.heap[self.parent(index)], self.heap[index] = self.heap[index], self.heap[self.parent(index)]
                 self._build_push_up_heapify(self.parent(index))
                 return self.heap
         return self.heap
 
-    def _build_push_down_min(self, index: int):
-        # this should be min(self.heap)
-        # but it got an error
-        # i dont know why this expression
-        # still getting index out of range
-        if min(self.heap[self.left_child(index)], self.heap[self.right_child(index)]) >= self.heap[index]: # pragma: no cover
-            return self.heap
-
-        if self.heap[self.left_child(index)][1] < self.heap[self.right_child(index)][1]:
-            self.heap[self.left_child(index)], self.heap[index] = self.heap[index], self.heap[self.left_child(index)]
-            self._build_push_down_min(self.left_child(index))
-            return self.heap
-
-        if self.heap[self.right_child(index)][1] > self.heap[self.left_child(index)][1]:
-            self.heap[self.right_child(index)], self.heap[index] = self.heap[index], self.heap[self.right_child(index)]
-            self._build_push_down_min(self.right_child(index))
-            return self.heap
-
-    def _build_push_down_max(self, index: int):
-        # refactoring this code
-        # maximum = max(index)
-
-        if max(self.heap[self.left_child(index)][1], self.heap[self.right_child(index)][1] <= self.heap[index][1]):
-            return self.heap
-
-        if self.heap[self.left_child(index)][1] > self.heap[self.right_child(index)][1]:
-            self.heap[self.left_child(index)], self.heap[index] = self.heap[index], self.heap[self.left_child(index)]
-            self._build_push_down_max(self.left_child(index))
-            return self.heap
-
-        if self.heap[self.right_child(index)][1] < self.heap[self.left_child(index)][1]:
-            self.heap[self.right_child(index)], self.heap[index] = self.heap[index], self.heap[self.right_child(index)]
-            self._build_push_down_max(self.right_child(index))
-            return self.heap
-
-    def _build_push_up_min(self, index: int):
-        if self.heap[self.parent(index)] and self.heap[self.left_child(index)] < self.heap[self.parent(index)]: # pragma: no cover
-            self.heap[self.parent(index)], self.heap[index] = self.heap[index], self.heap[self.parent(self.parent(index))]
-            self._build_push_down_min(self.left_child(index))
-            return self.heap
-
-    def _build_push_up_max(self, index: int):
-        if self.heap[self.parent(index)] and self.heap[self.right_child(index)][1] > self.heap[self.parent(index)][1]: # pragma: no cover
-            self.heap[self.parent(index)], self.heap[index] = self.heap[index], self.heap[self.parent(self.parent(index))]
-            self._build_push_down_max(self.right_child(index))
-            return self.heap
-
-    def _build_push_up_iterative(self, index: int):
-        while self.heap[self.parent(index)] and self.heap[index] < self.heap[self.parent(index)]: # pragma: no cover
-            self.heap[self.parent(index)], self.heap[index] = self.heap[index], self.heap[self.parent(index)]
-            self._build_push_down_iterative(self.parent(index))
-            return self.heap
+    def validate_heapify(self):
+        # WIP: fix this method
+        for index, element in enumerate(self.heap):
+            if self.parent(index) >= 0:
+                if self.heap[self.parent(index)][1] > self.heap[index][1]:
+                    print self.heap[self.parent(index)], self.heap[index]
+                    return False
+        return True
 
     def add(self, key: int, value: int) -> int:
         """Add and append the element in index."""
@@ -121,7 +80,7 @@ class Heap:
         minimum = self.heap[0] # pragma: no cover
         if minimum:
             minimum = self.heap.pop()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
-            self.build_push_down(0)
+            self._build_push_down_heapify(0)
             return minimum
 
     def update(self, key: int, value: int):
@@ -129,8 +88,8 @@ class Heap:
         for index, element in enumerate(self.heap):
             if element[0] == key:
                 self.heap[index] = (key, value)
-                if value >= element[1]:
-                    self._build_push_down_min(index)
+                if value > element[1]:
+                    self._build_push_down_heapify(index)
                 else:
                     self._build_push_up_heapify(index)
                 return self.heap
@@ -138,12 +97,10 @@ class Heap:
 
     def remove_key(self, key):
         """Remove element in index based on their key."""
-        for index, element in enumerate(self.heap):
+        for index, element in enumerate(self.heap): # pragma: no cover
             if element[0] == key:
                 last_element = self.heap.pop()
                 self.heap[index] = last_element
-                # should return build_push_down
-                # or returned as heapify ?
-                self._build_push_down_min(index)
+                self._build_push_down_heapify(index)
                 return self.heap
         return self.heap

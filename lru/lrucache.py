@@ -34,7 +34,7 @@ class LRUCache(BoundedLRUCache):
         """
         self.capacity = capacity
         self.seconds = seconds
-        self.dict = {}
+        self._cache_dict = {}
         self.cache = Heap()
         self.lock = threading.RLock() if thread_safe else BypassThreadSafe()
 
@@ -60,7 +60,7 @@ class LRUCache(BoundedLRUCache):
         return len(self.capacity)
 
     def __str__(self):
-        return "%s" % self.dict
+        return "%s" % self._cache_dict
 
     def __eq__(self, key: int):
         # should hashing a key
@@ -78,18 +78,18 @@ class LRUCache(BoundedLRUCache):
         return self.seconds
 
     def is_empty(self):
-        if len(self.dict) == 0:
+        if len(self._cache_dict) == 0:
             return True
         return False
 
     def clear_all(self):
-        return self.dict.clear()
+        return self._cache_dict.clear()
 
     def clear_cache_key(self, key: int) -> int:
         """Clear cache in element based on their key."""
         with self.lock:
             if self.get_cache(key):
-                return self.dict.clear()
+                return self._cache_dict.clear()
 
     def get_duration(self, expired_time: int=3600) -> int:
         """Get duration of cache, return `True` if the duration
@@ -118,7 +118,7 @@ class LRUCache(BoundedLRUCache):
         when element hasn't a key.
         """
         with self.lock:
-            if self.dict.get(key):
+            if self._cache_dict.get(key):
                 return True
             return False
 
@@ -127,7 +127,7 @@ class LRUCache(BoundedLRUCache):
         is full otherwiser return `False` when the cache
         is not full.
         """
-        if len(self.dict) > self.capacity:
+        if len(self._cache_dict) > self.capacity:
             return True
         return False
 
@@ -147,16 +147,16 @@ class LRUCache(BoundedLRUCache):
             # should write update() method
             # in heap module
             self.cache.update(key, access_time)
-            self.dict[key] = (value, access_time)
-            return self.dict
+            self._cache_dict[key] = (value, access_time)
+            return self._cache_dict
 
         if self.get_capacity():
             minimum = self.cache.remove()[0] # pragma: no cover
-            del self.dict[minimum]
+            del self._cache_dict[minimum]
 
         self.cache.add(key, access_time)
-        self.dict[key] = (value, access_time)
-        return self.dict
+        self._cache_dict[key] = (value, access_time)
+        return self._cache_dict
 
     def get(self, key: int):
         """Get the objects based on their key in cache element
@@ -165,22 +165,22 @@ class LRUCache(BoundedLRUCache):
         """
         if not self.get_cache(key): # pragma: no cover
             raise KeyError("Cache key not in elements.")
-
-        if self.is_empty:
+        
+        if not self.is_empty:
             raise KeyError("Nor between cache key and cache is empty.")
-            
+
         access_time = time.perf_counter()
         self.cache.update(key, access_time)
-        value = self.dict.get(key)[0]
-        self.dict[key] = (value, access_time)
+        value = self._cache_dict[key][0]
+        self._cache_dict[key] = (value, access_time)
         return value
 
-    def get_lru_element(self, key: int):
+    def get_lru_element(self):
         """Returned a dict type based on their key in cache element."""
         with self.lock: # pragma: no cover
-            key = self.cache.heap[0][1]
-            return self.dict[key]
+            key = self.cache.heap[0][0]
+            return self._cache_dict[key]
 
     def get_dict(self):
         """Returned a dict type in cache element."""
-        return self.dict
+        return self._cache_dict
