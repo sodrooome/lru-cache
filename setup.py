@@ -23,7 +23,7 @@ setuptools.setup(
     zip_safe=False,
     packages=setuptools.find_packages(),
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Framework :: Django',
         'Operating System :: OS Independent',
