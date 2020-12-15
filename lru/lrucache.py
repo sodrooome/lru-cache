@@ -1,23 +1,24 @@
 import time
 import threading
-import weakref
 import json
 import hashlib
 from lru.heap import Heap
 from lru.utils import BypassThreadSafe
-from abc import ABC, abstractmethod, ABCMeta
+from abc import abstractmethod, ABCMeta
+from typing import Union
+
 
 class BoundedLRUCache:
-
     __metaclass__ = ABCMeta
 
     @abstractmethod
     def clear_all(self):
         """Remove all element in cache dict."""
 
+
 class LRUCache(BoundedLRUCache):
 
-    def __init__(self, capacity: int=128, seconds: int=60*15, thread_safe: bool=False):
+    def __init__(self, capacity: int = 128, seconds: int = 60 * 15, thread_safe: bool = False):
         """Constructor for LRU Cache objects. Given
         the several parameter such as:
 
@@ -48,7 +49,7 @@ class LRUCache(BoundedLRUCache):
 
         if not isinstance(seconds, int):
             raise ValueError("Expected to set the duration of cache in seconds time.")
-        elif seconds > 60*15:
+        elif seconds > 60 * 15:
             raise ValueError("Maximum duration of cache is 15 minutes.")
         elif seconds < 0:
             raise ValueError("Cache duration can't set below zero time.")
@@ -56,6 +57,7 @@ class LRUCache(BoundedLRUCache):
     def __call__(self, *args, **kwargs):
         return self.cache
 
+    @property
     def __len__(self):
         return len(self.capacity)
 
@@ -69,7 +71,8 @@ class LRUCache(BoundedLRUCache):
     def __hash__(self, key: int):
         # should hashing a key
         # not an Dict object
-        print("The hash for dict object is: ") # pragma: no cover
+        # possible bug, WIP: fix this hash method
+        print("The hash for dict object is: ")  # pragma: no cover
         return hashlib.md5(json.dumps(self.get_cache(key)))
 
     @property
@@ -85,13 +88,13 @@ class LRUCache(BoundedLRUCache):
     def clear_all(self):
         return self._cache_dict.clear()
 
-    def clear_cache_key(self, key: int) -> int:
+    def clear_cache_key(self, key: int) -> None:
         """Clear cache in element based on their key."""
         with self.lock:
             if self.get_cache(key):
                 return self._cache_dict.clear()
 
-    def get_duration(self, expired_time: int=3600) -> int:
+    def get_duration(self, expired_time: int = 3600) -> int:
         """Get duration of cache, return `True` if the duration
         is exceed for expired time otherwise return `False`
         when the duration is even or below the expired time.
@@ -100,7 +103,7 @@ class LRUCache(BoundedLRUCache):
             return True
         return False
 
-    def get_ttl(self, key: int) -> int:
+    def get_ttl(self, key: int) -> Union[int, bool, None]:
         """Get time-to-live an objects based on their
         cache keys. Return False if the objects hasn't a key
         or time-to-live is expired.
@@ -131,16 +134,16 @@ class LRUCache(BoundedLRUCache):
             return True
         return False
 
-    def set(self, key: int, value: int) -> int:
+    def set(self, key: int, value: int) -> dict:
         """Set an objects that wants to be cached.
 
         :key: given key parameter as an integer
 
         :value: given value parameter of that key as an integer
         """
-        end = time.perf_counter()
-        start = time.perf_counter()
-        access_time = start - end
+        end: float = time.perf_counter()
+        start: float = time.perf_counter()
+        access_time: float = start - end
 
         if self.get_cache(key):
             # update method is not working
@@ -151,7 +154,7 @@ class LRUCache(BoundedLRUCache):
             return self._cache_dict
 
         if self.get_capacity():
-            minimum = self.cache.remove()[0] # pragma: no cover
+            minimum = self.cache.remove()[0]  # pragma: no cover
             del self._cache_dict[minimum]
 
         self.cache.add(key, access_time)
@@ -163,13 +166,13 @@ class LRUCache(BoundedLRUCache):
 
         :key: given key parameter as an integer
         """
-        if not self.get_cache(key): # pragma: no cover
+        if not self.get_cache(key):  # pragma: no cover
             raise KeyError("Cache key not in elements.")
-        
+
         if not self.is_empty:
             raise KeyError("Nor between cache key and cache is empty.")
 
-        access_time = time.perf_counter()
+        access_time: float = time.perf_counter()
         self.cache.update(key, access_time)
         value = self._cache_dict[key][0]
         self._cache_dict[key] = (value, access_time)
@@ -177,7 +180,7 @@ class LRUCache(BoundedLRUCache):
 
     def get_lru_element(self):
         """Returned a dict type based on their key in cache element."""
-        with self.lock: # pragma: no cover
+        with self.lock:  # pragma: no cover
             key = self.cache.heap[0][0]
             return self._cache_dict[key]
 
