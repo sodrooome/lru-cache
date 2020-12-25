@@ -2,6 +2,22 @@
 Guides
 ======
 
+.. image:: https://pepy.tech/badge/lruheap
+    :target: https://pepy.tech/badge/lruheap
+    :alt: Download
+
+.. image:: https://travis-ci.org/sodrooome/lru-cache.svg?branch=master
+    :target: https://travis-ci.org/sodrooome/lru-cache.svg?branch=master
+    :alt: TravisCI build
+
+.. image:: https://img.shields.io/pypi/status/lruheap
+    :target: https://img.shields.io/pypi/status/lruheap
+    :alt: Status package
+
+.. image:: https://codecov.io/gh/sodrooome/lru-cache/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/sodrooome/lru-cache/branch/master/graph/badge.svg
+    :alt: Code coverage
+
 **LRUCache** is a package for tracking store in-data memory using replacement cache algorithm / LRU cache. The Priority of storing or removing the data based on Min-Max heap algorithm or basic priority queue instead using **OrderedDict** module that provided by Python.
 
 Purpose
