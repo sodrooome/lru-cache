@@ -1,3 +1,7 @@
+"""
+LRUCache module for Decorators
+"""
+
 import functools
 from lru.lrucache import LRUCache
 from datetime import datetime, timedelta
@@ -5,13 +9,16 @@ from typing import Any
 
 
 def lru_cache(capacity: int = 128, **kwargs) -> Any:
-    """Decorators for LRUCache classes. Given the
-    capacity of cache based on LRUCache classes, for example:
+    """
+    Decorators for LRUCache classes. Given the
+    capacity of cache based on LRUCache classes
 
-    ```
-    @lru_cache(capacity=3)
-    def foo(x):
-        pass
+    Example: ::
+
+        @lru_cache(capacity=3)
+        def foo(x):
+            pass
+
     """
     def wrapper():
         return LRUCache(capacity=capacity, **kwargs)
@@ -19,15 +26,17 @@ def lru_cache(capacity: int = 128, **kwargs) -> Any:
 
 
 def lru_cache_time(capacity: int = 128, seconds: int = 60*15, **kwargs) -> int:
-    """Decorators for LRUCache classes using
+    """
+    Decorators for LRUCache classes using
     expired cached time. This is an mock only,
-    probably not ready to bump into major version. for example:
+    probably not ready to bump into major version
 
-    ```
-    @lru_cache_time(capacity=3, seconds=60)
-    def foo(x):
-        pass
-    ```
+    Example: ::
+    
+        @lru_cache_time(capacity=3, seconds=60)
+        def foo(x):
+            pass
+    
     """
     def wrapper(func):
         update_time = timedelta(seconds=seconds)

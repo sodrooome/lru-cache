@@ -9,3 +9,6 @@ __pycache__
 *.pyc
 build/
 .idea/
+docs/_build/
+docs/_static/
+docs/_templates/

@@ -13,26 +13,20 @@ class BoundedLRUCache:
 
     @abstractmethod
     def clear_all(self):
-        """Remove all element in cache dict."""
-
+        """
+        Remove all element in cache dict.
+        """
 
 class LRUCache(BoundedLRUCache):
+    """
+    Initial class for representing LRUCache, given the several parameter such as :
 
+    :param capacity: param for set the cache capacity, maximum number is 128
+    :param seconds: param for set the duration for store the cache, maximum is 15 minutes
+    :param dict: param for set the key and value into dict type
+    :param thread_safe: param for enable/disable thread safe option, default is False
+    """
     def __init__(self, capacity: int = 128, seconds: int = 60 * 15, thread_safe: bool = False):
-        """Constructor for LRU Cache objects. Given
-        the several parameter such as:
-
-        :capacity: param for set the cache capacity, maximum
-        number is 128
-
-        :seconds: param for set the duration for store the cache,
-        maximum is 15 minutes
-
-        :dict: param for set the key and value into dict type
-
-        :thread_safe: param for enable/disable thread safe option,
-        default is False
-        """
         self.capacity = capacity
         self.seconds = seconds
         self._cache_dict = {}
@@ -77,7 +71,9 @@ class LRUCache(BoundedLRUCache):
 
     @property
     def ttl(self):
-        """property for getting ttl in seconds."""
+        """
+        property for getting ttl in seconds.
+        """
         return self.seconds
 
     def is_empty(self):
@@ -89,13 +85,16 @@ class LRUCache(BoundedLRUCache):
         return self._cache_dict.clear()
 
     def clear_cache_key(self, key: int) -> None:
-        """Clear cache in element based on their key."""
+        """
+        Clear cache in element based on their key.
+        """
         with self.lock:
             if self.get_cache(key):
                 return self._cache_dict.clear()
 
     def get_duration(self, expired_time: int = 3600) -> int:
-        """Get duration of cache, return `True` if the duration
+        """
+        Get duration of cache, return `True` if the duration
         is exceed for expired time otherwise return `False`
         when the duration is even or below the expired time.
         """
@@ -104,7 +103,8 @@ class LRUCache(BoundedLRUCache):
         return False
 
     def get_ttl(self, key: int) -> Union[int, bool, None]:
-        """Get time-to-live an objects based on their
+        """
+        Get time-to-live an objects based on their
         cache keys. Return False if the objects hasn't a key
         or time-to-live is expired.
         """
@@ -116,7 +116,8 @@ class LRUCache(BoundedLRUCache):
         return None
 
     def get_cache(self, key: int):
-        """Get cache in element based on their key, return
+        """
+        Get cache in element based on their key, return
         `True` if the element has a key, otherwise return `False`
         when element hasn't a key.
         """
@@ -126,7 +127,8 @@ class LRUCache(BoundedLRUCache):
             return False
 
     def get_capacity(self):
-        """Get cache capacity, return `True` if the cache
+        """
+        Get cache capacity, return `True` if the cache
         is full otherwiser return `False` when the cache
         is not full.
         """
@@ -135,11 +137,11 @@ class LRUCache(BoundedLRUCache):
         return False
 
     def set(self, key: int, value: int) -> dict:
-        """Set an objects that wants to be cached.
+        """
+        Set an objects that wants to be cached
 
-        :key: given key parameter as an integer
-
-        :value: given value parameter of that key as an integer
+        :param key: given key parameter as an integer
+        :param value: given value parameter of that key as an integer
         """
         end: float = time.perf_counter()
         start: float = time.perf_counter()
@@ -162,9 +164,10 @@ class LRUCache(BoundedLRUCache):
         return self._cache_dict
 
     def get(self, key: int):
-        """Get the objects based on their key in cache element
+        """
+        Get the objects based on their key in cache element
 
-        :key: given key parameter as an integer
+        :param key: given key parameter as an integer
         """
         if not self.get_cache(key):  # pragma: no cover
             raise KeyError("Cache key not in elements.")
@@ -179,11 +182,15 @@ class LRUCache(BoundedLRUCache):
         return value
 
     def get_lru_element(self):
-        """Returned a dict type based on their key in cache element."""
+        """
+        Returned a dict type based on their key in cache element.
+        """
         with self.lock:  # pragma: no cover
             key = self.cache.heap[0][0]
             return self._cache_dict[key]
 
     def get_dict(self):
-        """Returned a dict type in cache element."""
+        """
+        Returned a dict type in cache element.
+        """
         return self._cache_dict
