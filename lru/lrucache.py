@@ -100,6 +100,8 @@ class LRUCache(BoundedLRUCache):
     def clear_cache_key(self, key: int) -> None:
         """
         Clear cache in element based on their key.
+
+        :param key: given key parameter as an integer to clear the cache
         """
         with self.lock:
             if self.get_cache(key):
@@ -110,6 +112,8 @@ class LRUCache(BoundedLRUCache):
         Get duration of cache, return `True` if the duration
         is exceed for expired time otherwise return `False`
         when the duration is even or below the expired time.
+
+        :param expired_time: given expired_time parameter as an integer in seconds
         """
         if expired_time >= self.seconds:
             return True
@@ -120,6 +124,8 @@ class LRUCache(BoundedLRUCache):
         Get time-to-live an objects based on their
         cache keys. Return False if the objects hasn't a key
         or time-to-live is expired.
+
+        :param key: given key parameter as an integer to fetch the TTL
         """
 
         # since the new version 1.1.0, always lock the thread safe
@@ -141,6 +147,8 @@ class LRUCache(BoundedLRUCache):
         Get cache in element based on their key, return
         `True` if the element has a key, otherwise return `False`
         when element hasn't a key.
+
+        :param key: given key parameter as an integer to fetch the cache
         """
         with self.lock:
             if self._cache_dict.get(key):
@@ -203,7 +211,7 @@ class LRUCache(BoundedLRUCache):
 
     def get_lru_element(self) -> Any:
         """
-        Returned a dict type based on their key in cache element.
+        Returned a least recently used element in cache element.
         """
         with self.lock:  # pragma: no cover
             key = self.cache.heap[0][0]
