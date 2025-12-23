@@ -16,6 +16,12 @@ Guides
 
 **LRUCache** is a package for tracking store in-data memory using replacement cache algorithm / LRU cache. The Priority of storing or removing the data based on Min-Max heap algorithm or basic priority queue instead using **OrderedDict** module that provided by Python.
 
+**Features**
+
+- Zero dependencies, only implemented with Python without any external libraries
+- Granularity control for TTL expiration and thread safety
+- Cache inspection methods before initialization
+
 Installation
 ------------
 
