@@ -1,6 +1,8 @@
-==========
-References
-==========
+==============
+API References
+==============
+
+All of the API references for `lruheap` package are listed below:
 
 lru.lrucache
 ------------
