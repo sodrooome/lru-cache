@@ -20,24 +20,27 @@ def lru_cache(capacity: int = 128, **kwargs) -> Any:
             pass
 
     """
+
     def wrapper():
         return LRUCache(capacity=capacity, **kwargs)
+
     return wrapper
 
 
-def lru_cache_time(capacity: int = 128, seconds: int = 60*15, **kwargs) -> int:
+def lru_cache_time(capacity: int = 128, seconds: int = 60 * 15, **kwargs) -> int:
     """
     Decorators for LRUCache classes using
     expired cached time. This is an mock only,
     probably not ready to bump into major version
 
     Example: ::
-    
+
         @lru_cache_time(capacity=3, seconds=60)
         def foo(x):
             pass
-    
+
     """
+
     def wrapper(func):
         update_time = timedelta(seconds=seconds)
         next_update_time = datetime.utcnow() + update_time
@@ -54,5 +57,7 @@ def lru_cache_time(capacity: int = 128, seconds: int = 60*15, **kwargs) -> int:
                 func.clear_all()
                 next_update_time = now_time + update_time
             return func(*args, **kwargs)
+
         return wrapped
+
     return wrapper

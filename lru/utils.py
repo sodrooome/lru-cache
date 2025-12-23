@@ -8,6 +8,7 @@ class BypassThreadSafe:
     Classes for bypassing thread safe
     in LRU Cache class.
     """
+
     def __enter__(self):
         pass
 
