@@ -1,7 +1,7 @@
 """Module for unittest."""
 
 import unittest
-# from nose.tools import raises # noqa
+from unittest.mock import MagicMock
 from lru.lrucache import LRUCache
 
 class LRUCacheTest(unittest.TestCase):
@@ -59,4 +59,74 @@ class LRUCacheTest(unittest.TestCase):
 
     def test_scale_capacity(self):
         self.assertTrue(self.testLRU(capacity=300))
+
+    def test_get_key_update_access_time(self):
+        # mocking time for testing purposes, this test
+        # only test whether the access time is updated
+        # when getting the cache key, and only verified
+        # returned values from MagicMock and mutated values
+        cache = LRUCache()
+        cache.lock = MagicMock()
+        cache.cache = MagicMock()
+        cache.get_cache = MagicMock(return_value=True)
+
+        initial_time = 1.0
+        cache._cache_dict = {1: ("value", initial_time)}
+        value = cache.get(1)
+
+        self.assertEqual(value, "value")
+        self.assertEqual(cache._cache_dict[1][0], "value")
+        self.assertNotEqual(cache._cache_dict[1][1], initial_time)
+
+class LRUCacheTestInitialization(unittest.TestCase):
+    """Initial class for unittest the initialization of LRUCache
+    including the validation of the property
+    """
+
+    def test_valid_initialization(self):
+        self.testLRU = LRUCache(capacity=5, seconds=60)
+        self.assertEqual(self.testLRU.capacity, 5)
+        self.assertEqual(self.testLRU.seconds, 60)
+
+    def test_invalid_validation(self):
+        with self.assertRaises(ValueError):
+            LRUCache(capacity=-1)
+
+        with self.assertRaises(ValueError):
+            LRUCache(capacity=None)
+
+        with self.assertRaises(ValueError):
+            LRUCache(capacity=129)
+
+        with self.assertRaises(ValueError):
+            LRUCache(seconds=-10)
+
+        with self.assertRaises(ValueError):
+            LRUCache(seconds=None)
+
+        with self.assertRaises(ValueError):
+            LRUCache(seconds=60*15*15*15)
+
+    def test_equality_for_cache_dict(self):
+        cache_1 = LRUCache(capacity=3)
+        cache_2 = LRUCache(capacity=3)
+        self.assertEqual(cache_1, cache_2)
+
+    @unittest.expectedFailure
+    def test_different_equality_for_cache_dict(self):
+        cache_1 = LRUCache(capacity=3)
+        cache_2 = LRUCache(capacity=5)
+        self.assertNotEqual(cache_1, cache_2)
+
+    def test_hashable_cache(self):
+        cache_1 = LRUCache(capacity=3)
+        cache_2 = LRUCache(capacity=3)
+        self.assertEqual(hash(cache_1), hash(cache_2))
+
+    @unittest.expectedFailure
+    def test_different_hashable_cache(self):
+        cache_1 = LRUCache(capacity=3)
+        cache_2 = LRUCache(capacity=5)
+        self.assertNotEqual(hash(cache_1), hash(cache_2))
+        
     

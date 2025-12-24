@@ -1,7 +1,7 @@
 from typing import Union, Any, Tuple
 
 
-class Heap(object):
+class Heap:
     """Base class for heap object."""
 
     def __init__(self, cache_list=None):
@@ -28,40 +28,57 @@ class Heap(object):
         else:
             return self._build_push_up_heapify(index)
 
-    def _single_child(self, index: int):
-        return self.left_child(index) < len(self.heap) and self.right_child(index) >= len(
-            self.heap)  # pragma: no cover
+    def _single_child(self, index: int) -> bool:
+        return self.left_child(index) < len(self.heap) and self.right_child(
+            index
+        ) >= len(
+            self.heap
+        )  # pragma: no cover
 
-    def _is_leaf(self, index: int):
-        return self.left_child(index) >= len(self.heap) and self.right_child(index) >= len(
-            self.heap)  # pragma: no cover
+    def _is_leaf(self, index: int) -> bool:
+        return self.left_child(index) >= len(self.heap) and self.right_child(
+            index
+        ) >= len(
+            self.heap
+        )  # pragma: no cover
 
-    def _build_push_down_heapify(self, index: int):
+    def _build_push_down_heapify(self, index: int) -> list | None:
         if not self._is_leaf(index):  # pragma: no cover
             if not self._single_child(index):  # pragma: no cover
-                if min(self.heap[self.left_child(index)][1], self.heap[self.right_child(index)][1]) >= \
-                    self.heap[index][
-                        1]:  # pragma: no cover
+                if (
+                    min(
+                        self.heap[self.left_child(index)][1],
+                        self.heap[self.right_child(index)][1],
+                    )
+                    >= self.heap[index][1]
+                ):  # pragma: no cover
                     return self.heap
 
-                if self.heap[self.left_child(index)][1] >= self.heap[self.right_child(index)][1]:  # pragma: no cover
+                if (
+                    self.heap[self.left_child(index)][1]
+                    >= self.heap[self.right_child(index)][1]
+                ):  # pragma: no cover
                     return
-                self.heap[self.left_child(index)], self.heap[index] = self.heap[index], self.heap[
-                    self.left_child(index)]
+                self.heap[self.left_child(index)], self.heap[index] = (
+                    self.heap[index],
+                    self.heap[self.left_child(index)],
+                )
                 self._build_push_down_heapify(self.right_child(index))
                 return self.heap
 
             if self.heap[self.left_child(index)][1] >= self.heap[index][1]:
                 pass
             else:
-                self.heap[self.left_child(index)], self.heap[index] = self.heap[index], self.heap[
-                    self.left_child(index)]
+                self.heap[self.left_child(index)], self.heap[index] = (
+                    self.heap[index],
+                    self.heap[self.left_child(index)],
+                )
             return self.heap
 
         return self.heap
 
     @property
-    def build_floyd_heap(self):
+    def build_floyd_heap(self) -> list | None:
         """Build Min-Heap based on Floyd's linear-time heap construction algorithm."""
         index: Union[Tuple[int, Any], Any]
         for _ in enumerate(self.heap // 2):  # pragma: no cover
@@ -76,12 +93,15 @@ class Heap(object):
             if self.heap[self.parent(index)][1] <= self.heap[index][1]:
                 pass
             else:  # pragma: no cover
-                self.heap[self.parent(index)], self.heap[index] = self.heap[index], self.heap[self.parent(index)]
+                self.heap[self.parent(index)], self.heap[index] = (
+                    self.heap[index],
+                    self.heap[self.parent(index)],
+                )
                 self._build_push_up_heapify(self.parent(index))
                 return self.heap
         return self.heap
 
-    def validate_heapify(self):
+    def validate_heapify(self) -> bool:
         # WIP: fix this method
         for index, element in enumerate(self.heap):
             if self.parent(index) >= 0:
@@ -90,12 +110,12 @@ class Heap(object):
                     return False
         return True
 
-    def add(self, key: object, value: object) -> object:
+    def add(self, key: object, value: object) -> None:
         """Add and append the element in index."""
         self.heap.append((key, value))
         self._build_push_up_heapify(len(self.heap) - 1)
 
-    def remove(self):
+    def remove(self) -> None:
         """Remove minimum element in index."""
         minimum = self.heap[0]  # pragma: no cover
         if minimum:
@@ -103,7 +123,7 @@ class Heap(object):
             self._build_push_down_heapify(0)
             return minimum
 
-    def update(self, key: object, value: object) -> object:
+    def update(self, key: object, value: object) -> list:
         """Update key and value element in index."""
         for index, element in enumerate(self.heap):
             if element[0] == key:
@@ -115,7 +135,7 @@ class Heap(object):
                 return self.heap
         return self.heap
 
-    def remove_key(self, key):
+    def remove_key(self, key) -> list:
         """Remove element in index based on their key."""
         for index, element in enumerate(self.heap):  # pragma: no cover
             if element[0] == key:
