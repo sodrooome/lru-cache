@@ -37,11 +37,35 @@ class TestLRUCacheDecorators(unittest.TestCase):
         self.assertEqual(initial_call, 1)
 
     def test_lru_cache_expiry_time(self):
-        @lru_cache_time(capacity=3, seconds=30)
-        def foo(x):
-            return x * 2
+        initial_call = 0
 
-        self.assertTrue(callable(foo))
+        fake_datetime = datetime(2026, 9, 5, 0, 0)
+
+        with patch("lru.decorators.datetime") as mock_datetime:
+            # set the initial call
+            mock_datetime.utcnow.return_value = fake_datetime
+
+            @lru_cache_time(capacity=3, seconds=30)
+            def foo(x):
+                nonlocal initial_call
+                initial_call += 1
+                return x * 2
+
+            # first call should have been executed the function
+            self.assertEqual(foo(2), 4)
+            self.assertEqual(initial_call, 1)
+
+            # second call should use cache within TTL
+            mock_datetime.utcnow.return_value = fake_datetime + timedelta(seconds=10)
+
+            self.assertEqual(foo(2), 4)
+            self.assertEqual(initial_call, 1)
+
+            # after TTL expires, cache is being cleared and invalidated
+            mock_datetime.utcnow.return_value = fake_datetime + timedelta(seconds=31)
+
+            self.assertEqual(foo(2), 4)
+            self.assertEqual(initial_call, 2)
 
 
 if __name__ == "__main__":
