@@ -81,7 +81,16 @@ def lru_cache_time(capacity: int = 128, seconds: int = 60 * 15, **kwargs) -> int
             if now_time > next_update_time:
                 cached.clear_all()
                 next_update_time = now_time + update_time
-            return cached(*args, **kwargs)
+
+            key = generate_hash_key(*args, **kwargs)
+
+            if cached.get_cache(key):
+                return cached.get(key)
+
+            result = func(*args, **kwargs)
+            cached.set(key, result)
+
+            return result
 
         return wrapped
 
