@@ -1,8 +1,8 @@
-==============
+================
 API References
-==============
+================
 
-All of the API references for `lruheap` package are listed below:
+All of the API references for the ``lruheap`` package are listed below.
 
 lru.lrucache
 ------------
@@ -10,14 +10,20 @@ lru.lrucache
 .. automodule:: lru.lrucache
     :members:
 
-lru.utils
----------
+lru.heap
+--------
 
-.. automodule:: lru.utils
+.. automodule:: lru.heap
     :members:
 
 lru.decorators
 --------------
 
 .. automodule:: lru.decorators
+    :members:
+
+lru.utils
+---------
+
+.. automodule:: lru.utils
     :members:

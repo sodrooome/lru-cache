@@ -4,55 +4,84 @@ Guides
 
 .. image:: https://pepy.tech/badge/lruheap
     :target: https://pepy.tech/badge/lruheap
-    :alt: Download
+    :alt: Downloads
 
 .. image:: https://img.shields.io/pypi/status/lruheap
     :target: https://img.shields.io/pypi/status/lruheap
-    :alt: Status package
+    :alt: Status
 
 .. image:: https://codecov.io/gh/sodrooome/lru-cache/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/sodrooome/lru-cache/branch/master/graph/badge.svg
     :alt: Code coverage
 
-**LRUCache** is a package for tracking store in-data memory using replacement cache algorithm / LRU cache. The Priority of storing or removing the data based on Min-Max heap algorithm or basic priority queue instead using **OrderedDict** module that provided by Python.
+**LRUCache** is a Python package for in-memory caching using the LRU (Least
+Recently Used) eviction policy. Unlike Python's built-in ``OrderedDict``-based
+approach, this implementation uses a **min-heap priority queue** to track
+access times, providing efficient eviction of the least recently used entry
+when the cache reaches capacity.
 
-**Features**
+Features
+--------
 
-- Zero dependencies, only implemented with Python without any external libraries
-- Granularity control for TTL expiration and thread safety
-- Cache inspection methods before initialization
+- Zero dependencies with pure Python, no external libraries
+- Granular TTL (time-to-live) expiration per cache entry
+- Optional thread-safe mode via ``threading.RLock``
+- Cache introspection: inspect capacity, TTL, and contents at runtime
+- Decorator-based caching for function return values
 
 Installation
 ------------
 
 .. warning::
-    Compatibility version
-    --------------------- 
-    Since the version of 1.1.0, this package only support Python 3.10 and above, so please make sure your Python version is compatible with this package
+    Since version 1.1.0, this package requires Python 3.10 or above.
+    Please ensure your Python version is compatible.
 
-**LRUCache** has been published on PyPI and already stable since version 1.0.1, you can install it using following command :
+**LRUCache** is published on PyPI as ``lruheap``. Install it with:
 
 .. code-block:: bash
-    
+
     pip install lruheap
 
+Or with ``uv`` for faster installation:
 
-Usage
------
+.. code-block:: bash
 
-A simple usage of **LRUCache** package can be executed as follows 
+    uv pip install lruheap
+
+Import
+------
+
+The package name on PyPI is ``lruheap``, but the Python module is ``lru``:
+
+.. code-block:: python
+
+    from lru.lrucache import LRUCache
+    from lru.decorators import lru_cache, lru_cache_time
+
+Quickstart
+----------
 
 .. code-block:: python
 
     from lru.lrucache import LRUCache
 
-    lru_cache = LRUCache(capacity=5)
-    lru_cache.set(1, "test1")
-    lru_cache.get(1) # will return "test1"
+    cache = LRUCache(capacity=5)
+    cache.set(1, "test1")
+    print(cache.get(1))  # "test1"
 
-And that's it! you can explore more about this package in the **Usage** guide
+See the **Usage** page for a complete API reference.
 
 Testing
 -------
 
-For running the test, you can use command `python -m unittest tests` or `python -m unittest discover .`
+Run tests with:
+
+.. code-block:: bash
+
+    python -m pytest tests
+
+Or using the project Makefile:
+
+.. code-block:: bash
+
+    make coverage
