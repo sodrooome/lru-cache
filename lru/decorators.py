@@ -47,10 +47,9 @@ def lru_cache_time(capacity: int = 128, seconds: int = 60 * 15, **kwargs) -> int
     expiry. The entire cache is cleared automatically once the TTL has elapsed,
     and the expiration window time resets from that point
 
-    Args:
-        capacity (int): maximum number of entries to store in the cache queue
-        seconds (int): cache TTL in seconds before cache clear is being triggered
-        **kwargs: additional keywords argument passed to the LRUCache
+    :param capacity (int): maximum number of entries to store in the cache queue
+    :param seconds (int): cache TTL in seconds before cache clear is being triggered
+    :param kwargs: additional keywords argument passed to the LRUCache
 
     Returns:
         Callabe: a decorator that wraps the target with time-based caching
