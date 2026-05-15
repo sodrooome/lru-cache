@@ -95,7 +95,9 @@ class LRUCache(BoundedLRUCache):
         """
         Clear all cache in element
         """
-        return self._cache_dict.clear()
+        with self.lock:
+            self._cache_dict.clear()
+            self.cache = Heap() # reset the heap to an empty state
 
     def clear_cache_key(self, key: int) -> None:
         """
@@ -154,9 +156,7 @@ class LRUCache(BoundedLRUCache):
         :param key: given key parameter as an integer to fetch the cache
         """
         with self.lock:
-            if self._cache_dict.get(key):
-                return True
-            return False
+            return key in self._cache_dict
 
     def get_capacity(self) -> bool:
         """
