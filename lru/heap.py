@@ -140,7 +140,14 @@ class Heap:
         for index, element in enumerate(self.heap):  # pragma: no cover
             if element[0] == key:
                 last_element = self.heap.pop()
+
+                # if removed element was already the last element, we can just return the heap
+                if index == len(self.heap):
+                    return self.heap
                 self.heap[index] = last_element
+
+                # then we can restore the heap property in both ways
                 self._build_push_down_heapify(index)
+                self._build_push_up_heapify(index)
                 return self.heap
         return self.heap

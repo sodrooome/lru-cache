@@ -2,26 +2,45 @@
 Caveats
 =======
 
-Basically, based on the example there’s a several confusion and caveats :
+``lruheap`` is a lightweight, in-memory cache. While useful in many
+scenarios, it has important limitations you should be aware of.
 
-- After the cache duration that we have set exceeds the maximum limit of expired time, will the value of the function be deleted or not? cause the output is not JSON type (probably i’ll given a try to using the jsonify method or make_response).
+Known limitations
+-----------------
 
-- Secondly, whether the value it still be stored and appears in a web browser or not, if we stop the flask server.
+1. **In-memory only, not persisted**. All data is stored in the process's memory. The cache is lost when the
+   process exits or restarts. There is no on-disk persistence or replication.
+2. **Not shared between processes**. Each Python process (for example: each Django/Flask worker, each Gunicorn
+   worker) has its own independent cache instance. Cache entries set in
+   one worker are not visible to another. This makes it unsuitable as a primary cache layer in multi-process web serving environments.
+3. **TTL is checked on access, not proactively**. TTL (time-to-live) is validated when ``get()`` or ``get_ttl()`` is called.
+   Expired entries are not removed by a background thread, they remain in
+   memory until accessed or evicted.
+4. **Not recommended for production web caching**. For production web environments, use a dedicated caching layer such as:
 
-- Using LRUCache decorators in Django cause a problem in the clickjacking middleware section, we can temporarily set X-FRAME-OPTIONS to DENY in settings.py file inside Django root project if we want to use LRUCache decorators.
+   - `Django's locmemcache`_ (for single-process dev) or a proper backend
+   - `Redis`_ / `memcached`_ (for multi-worker production deployments)
 
-Likewise, the use of LRUcache in Django or Flask itself is very limited at this time, because there is a contradiction that is we can’t set the objects dynamically, and another obstacle is that if the object that we set is not in the dict type, we need to do the object hashing
+5. **Django clickjacking middleware**. When using the ``LRUCache`` decorators with Django, you may encounter
+   issues with the ``X-Frame-Options`` middleware. As a workaround, set
+   ``X-FRAME-OPTIONS = 'DENY'`` in your Django ``settings.py``.
 
-Particularly, this package is **not recommended** to serve as primary caching at the web environment level, as for noted, it is highly recommended to use the locmemcache provided by django or to use the redis instance. There are some writings that say that caching should not be done in Python (i also don't really know if this is true or not) because using cache with this package itself doesn't really reduce efficiency in memory.
+When is it suitable?
+--------------------
 
+Despite the limitations above, ``lruheap`` is a good fit for:
 
-Why it matters to use this?
-===========================
+- **Internal tools** and scripts that run in a single process
+- **Development environments** where you want lightweight caching without
+  standing up a Redis or memcached instance
+- **Function-level memoization** such as cache the result of expensive
+  computations, API calls, or data transformations within the lifetime
+  of a process
 
-This **LRUcache** package is suitable for storing a small amount of data and then returning the data in the relevant amount. Besides that, you can also use this package at the development level (not in production) to be able to find out and measure how much the performance of the web is made of (you can do this by using django-debug-toolbar), as when we use it at the development level we don't need to run a worker or some sort of web server process
+If you need to share cache state across workers or persist data across
+restarts, consider using Redis, memcached, or a database-backed cache
+instead.
 
-In addition to that, it might **suitable** for real-world case use in the right contexts and appropriate manners such as :
-
-- Internal tools
-- Development environments
-- Function level optimization (for instance, memoize repeated computations like whenever fetch or streaming API request)
+.. _Django's locmemcache: https://docs.djangoproject.com/en/stable/topics/cache/#local-memory-caching
+.. _Redis: https://redis.io
+.. _memcached: https://memcached.org

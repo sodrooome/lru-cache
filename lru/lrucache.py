@@ -51,7 +51,6 @@ class LRUCache(BoundedLRUCache):
     def __call__(self, *args, **kwargs):
         return self.cache
 
-    @property
     def __len__(self) -> int:
         """
         property for get length of the cache capacity
@@ -87,15 +86,18 @@ class LRUCache(BoundedLRUCache):
         return `True` if is empty otherwise will
         return `False` if is not empty
         """
-        if len(self._cache_dict) == 0:
-            return True
-        return False
+        with self.lock:
+            if len(self._cache_dict) == 0:
+                return True
+            return False
 
     def clear_all(self) -> None:
         """
         Clear all cache in element
         """
-        return self._cache_dict.clear()
+        with self.lock:
+            self._cache_dict.clear()
+            self.cache = Heap() # reset the heap to an empty state
 
     def clear_cache_key(self, key: int) -> None:
         """
@@ -104,8 +106,11 @@ class LRUCache(BoundedLRUCache):
         :param key: given key parameter as an integer to clear the cache
         """
         with self.lock:
-            if self.get_cache(key):
-                return self._cache_dict.clear()
+            if key in self._cache_dict:
+                # delete only particular key instead of
+                # clear all the cache items
+                del self._cache_dict[key]
+                self.cache.remove_key(key=key)
 
     def get_duration(self, expired_time: int = 3600) -> bool:
         """
@@ -151,9 +156,7 @@ class LRUCache(BoundedLRUCache):
         :param key: given key parameter as an integer to fetch the cache
         """
         with self.lock:
-            if self._cache_dict.get(key):
-                return True
-            return False
+            return key in self._cache_dict
 
     def get_capacity(self) -> bool:
         """
@@ -161,7 +164,7 @@ class LRUCache(BoundedLRUCache):
         is full otherwiser return `False` when the cache
         is not full.
         """
-        if len(self._cache_dict) > self.capacity:
+        if len(self._cache_dict) >= self.capacity:
             return True
         return False
 
