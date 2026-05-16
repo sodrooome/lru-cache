@@ -2,7 +2,7 @@
 Roadmap
 =======
 
-The current stable version is **1.2.0**. Here is the progress on planned
+The current stable version is **1.1.0**. Here is the progress on planned
 features:
 
 Completed
@@ -11,9 +11,9 @@ Completed
 - [x] Use classes as decorators for caching objects
 - [x] Add expired time for caching objects (TTL)
 - [x] Add thread-safe parameter
-- [x] Version 1.2.0 release with improved static type hints
+- [x] Improved static type hints for all methods
 - [x] Dropped support for Python below 3.10
-- [x] Bug fixes in the ``lru.lrucache`` module
+- [x] Bug fixes in core modules (``lru.lrucache``, ``lru.heap``)
 
 Planned / In progress
 ---------------------

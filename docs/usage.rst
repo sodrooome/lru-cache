@@ -136,7 +136,8 @@ the key does not exist or the TTL has expired, returns ``False``.
 ``clear_all`` method
 --------------------
 
-Remove all entries from the cache.
+Remove all entries from the cache and reset the internal heap to an
+empty state. This operation is thread-safe when ``thread_safe=True``.
 
 .. code-block:: python
 

@@ -33,6 +33,8 @@ Heap operations have the following complexities:
 - **Search by key**: O(n) in the worst case
 - **Update access time**: O(n) to find the element, then O(log n) to
   re-heapify
+- **Remove by key**: O(n) to find the element, then O(log n) to
+  re-heapify in both directions
 
 This is different from Python's ``OrderedDict`` approach, which offers
 O(1) move-to-end operations but doesn't natively support TTL expiration.
