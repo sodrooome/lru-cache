@@ -1,5 +1,6 @@
 import time
 import threading
+import warnings
 from .heap import Heap
 from .utils import BypassThreadSafe
 from abc import ABCMeta, abstractmethod
@@ -68,10 +69,37 @@ class LRUCache(BoundedLRUCache):
 
     def __hash__(self) -> int:
         """Return hash of the LRUCache object and make it hashable"""
-        # consider to use this if the cache dict is unhashable
-        # some cases when this happens if the cache changes
-        print("The hash for dict object is: ")
+        # introduced at v1.3.0: remove the print statement is being
+        # invoked silently and possibly causing an unexpected result
         return hash(frozenset(self._cache_dict.items()))
+    
+    def __contains__(self, key: int) -> bool:
+        # introduced at v1.3.0: replace the named of `get_cache()` with
+        # the standard Python's protocol. The callers can now write
+        # the idiomatic key in cache list rather than manually check the existence
+        with self.lock:
+            return key in self._cache_dict
+        
+    def _has_key(self, key: int) -> bool:
+        # introduced at v1.3.0: internal helpers, shouldn't be invoked from public APIs
+        # the old approach called `get_cache()` which has a function
+        # to re-acquires the lock and also holds the locks, caused fragile
+        # pattern and having a possibility cause the double-lock
+        return key in self._cache_dict
+    
+    def _is_expired(self, key: int) -> bool:
+        # introduced at v1.3.0: internal helpers, shouldn't be invoked from public APIs
+        # returns `True` when the cache entry associated with key whereas
+        # the expiration has lived longer than configured TTL. This function
+        # used to be enforce expiration during read process
+        _, access_time = self._cache_dict[key]
+        return (time.perf_counter() - access_time) > self.seconds
+
+    def _evict(self, key: int) -> None:
+        # introduced at v1.3.0: internal helpers, shouldn't be invoked from public APIs
+        # remove a single entry from both dictionaries and heap object
+        del self._cache_dict[key]
+        self.cache.remove_key(key=key)
 
     @property
     def ttl(self) -> int:
@@ -106,11 +134,8 @@ class LRUCache(BoundedLRUCache):
         :param key: given key parameter as an integer to clear the cache
         """
         with self.lock:
-            if key in self._cache_dict:
-                # delete only particular key instead of
-                # clear all the cache items
-                del self._cache_dict[key]
-                self.cache.remove_key(key=key)
+            if self._has_key(key):
+                self._evict(key)
 
     def get_duration(self, expired_time: int = 3600) -> bool:
         """
@@ -135,7 +160,8 @@ class LRUCache(BoundedLRUCache):
 
         # since the new version 1.1.0, always lock the thread safe
         with self.lock:
-            if key not in self._cache_dict:
+            if not self._has_key(key):
+                # since v1.3.0, lock free internal check
                 return False
 
             _, access_time = self._cache_dict[key]
@@ -144,8 +170,11 @@ class LRUCache(BoundedLRUCache):
 
             if ttl > 0:
                 return int(ttl)
-            else:
-                return False
+            
+            # returned early eviction of the entry
+            # while that entry already hold the lock
+            self._evict(key=key)
+            return False
 
     def get_cache(self, key: int) -> bool:
         """
@@ -156,6 +185,7 @@ class LRUCache(BoundedLRUCache):
         :param key: given key parameter as an integer to fetch the cache
         """
         with self.lock:
+            warnings.warn("This function has been deprecated since v1.3.0, you may use `get()` to get a cache objects")
             return key in self._cache_dict
 
     def get_capacity(self) -> bool:
@@ -203,9 +233,16 @@ class LRUCache(BoundedLRUCache):
 
         # always make sure to lock the thread safe
         with self.lock:
-            if not self.get_cache(key):
+            if not self._has_key(key):
                 raise KeyError(f"Cache key is not found in the cache element")
 
+            # fixed at v1.3.0: TTL is now being enforced on every read
+            # which was already absent since initial release. Now,
+            # expired entries are evicted as early as possible
+            if self._is_expired(key=key):
+                self._evict(key)
+                raise KeyError(f"Cache key '{key}' has expired and evicted")
+            
             access_time: float = time.perf_counter()
             self.cache.update(key, access_time)
             value = self._cache_dict[key][0]
@@ -217,11 +254,17 @@ class LRUCache(BoundedLRUCache):
         Returned a least recently used element in cache element.
         """
         with self.lock:  # pragma: no cover
+            # fixed at v1.3.0: added and empty guard which possibly
+            # raises an IndexError if the cache was empty
+            if not self.cache.heap:
+                return None
             key = self.cache.heap[0][0]
-            return self._cache_dict[key]
+            return self._cache_dict.get(key)
 
     def get_dict(self) -> dict:
         """
         Returned a dict type in cache element.
         """
-        return self._cache_dict
+        # introduced at v1.3.0: returning a shallow copy
+        with self.lock:
+            return dict(self._cache_dict)
