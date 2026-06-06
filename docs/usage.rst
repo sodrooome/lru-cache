@@ -48,25 +48,36 @@ evicted first.
 Retrieve the value for a given key. Calling ``get`` also updates the entry's
 access time, marking it as recently used.
 
+.. warning::
+    **Changed in version 1.3.0**: TTL is now enforced on every read.
+    Expired entries are automatically evicted before the value is returned,
+    raising ``KeyError`` instead of returning stale data.
+
 .. code-block:: python
 
     value = cache.get(1)  # "foobar"
 
 :param key: integer key to look up
-:raises KeyError: if the key is not present in the cache
+:raises KeyError: if the key is not present in the cache, or if the entry
+    has expired (since v1.3.0)
 :returns: the stored value
 
 ``get_dict`` method
 -------------------
 
-Return the internal cache dictionary, where keys are the integer cache keys
-and values are ``(stored_value, access_time)`` tuples.
+Return a shallow copy of the internal cache dictionary, where keys are the
+integer cache keys and values are ``(stored_value, access_time)`` tuples.
+
+.. warning::
+    **Changed in version 1.3.0**: This operation is now thread-safe and
+    returns a shallow copy to prevent external mutation of the internal
+    cache state.
 
 .. code-block:: python
 
     cache.get_dict()
 
-:returns: dict — the full cache contents
+:returns: dict, a shallow copy of the cache contents
 
 ``get_duration`` method
 -----------------------
@@ -90,11 +101,16 @@ Return the least recently used entry from the cache (the element at the
 top of the min-heap). This is the entry that will be evicted next when
 the cache reaches capacity.
 
+.. warning::
+    **Changed in version 1.3.0**: Returns ``None`` instead of raising
+    ``IndexError`` when the cache is empty.
+
 .. code-block:: python
 
     cache.get_lru_element()
 
-:returns: ``(value, access_time)`` tuple of the LRU entry
+:returns: ``(value, access_time)`` tuple of the LRU entry, or ``None``
+    if the cache is empty (since v1.3.0)
 
 ``get_capacity`` method
 -----------------------
@@ -108,14 +124,17 @@ otherwise ``False``.
 
 :returns: bool
 
-``get_cache`` method
---------------------
+``get_cache`` method (deprecated)
+---------------------------------
+
+.. warning::
+    **Deprecated in version 1.3.0**: Use ``key in cache`` or ``cache.get(key)`` instead.
 
 Check whether a specific key exists in the cache.
 
 .. code-block:: python
 
-    cache.get_cache(1)
+    cache.get_cache(1)  # emits DeprecationWarning
 
 :param key: integer key
 :returns: ``True`` if the key exists, ``False`` otherwise
@@ -125,6 +144,10 @@ Check whether a specific key exists in the cache.
 
 Get the remaining time-to-live (in seconds) for a specific cache entry. If
 the key does not exist or the TTL has expired, returns ``False``.
+
+.. warning::
+    **Changed in version 1.3.0**: Expired entries are now evicted
+    immediately upon check, rather than simply returning ``False``.
 
 .. code-block:: python
 
@@ -178,12 +201,21 @@ Read-only property that returns the configured TTL duration (in seconds).
 Special methods
 ---------------
 
+.. note::
+    **New in version 1.3.0**: The ``in`` operator (``key in cache``) is
+    now supported as the idiomatic replacement for ``get_cache()``.
+
+.. warning::
+    **Changed in version 1.3.0**: ``hash(cache)`` no longer prints to
+    stdout as a side effect.
+
 .. code-block:: python
 
     len(cache)      # number of entries
     str(cache)      # string representation of the cache dict
     cache == other  # equality comparison (compares cache dicts)
     hash(cache)     # hash based on cache contents
+    key in cache    # check if key exists (replaces get_cache())
     cache()         # returns the underlying Heap instance
 
 ``@lru_cache`` decorator
