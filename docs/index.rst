@@ -15,3 +15,4 @@ along with decorator-based caching for Python functions.
     caveats
     miscellaneous
     roadmap
+    releases
