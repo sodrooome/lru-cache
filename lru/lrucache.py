@@ -72,21 +72,21 @@ class LRUCache(BoundedLRUCache):
         # introduced at v1.3.0: remove the print statement is being
         # invoked silently and possibly causing an unexpected result
         return hash(frozenset(self._cache_dict.items()))
-    
+
     def __contains__(self, key: int) -> bool:
         # introduced at v1.3.0: replace the named of `get_cache()` with
         # the standard Python's protocol. The callers can now write
         # the idiomatic key in cache list rather than manually check the existence
         with self.lock:
             return key in self._cache_dict
-        
+
     def _has_key(self, key: int) -> bool:
         # introduced at v1.3.0: internal helpers, shouldn't be invoked from public APIs
         # the old approach called `get_cache()` which has a function
         # to re-acquires the lock and also holds the locks, caused fragile
         # pattern and having a possibility cause the double-lock
         return key in self._cache_dict
-    
+
     def _is_expired(self, key: int) -> bool:
         # introduced at v1.3.0: internal helpers, shouldn't be invoked from public APIs
         # returns `True` when the cache entry associated with key whereas
@@ -125,7 +125,7 @@ class LRUCache(BoundedLRUCache):
         """
         with self.lock:
             self._cache_dict.clear()
-            self.cache = Heap() # reset the heap to an empty state
+            self.cache = Heap()  # reset the heap to an empty state
 
     def clear_cache_key(self, key: int) -> None:
         """
@@ -170,7 +170,7 @@ class LRUCache(BoundedLRUCache):
 
             if ttl > 0:
                 return int(ttl)
-            
+
             # returned early eviction of the entry
             # while that entry already hold the lock
             self._evict(key=key)
@@ -185,7 +185,9 @@ class LRUCache(BoundedLRUCache):
         :param key: given key parameter as an integer to fetch the cache
         """
         with self.lock:
-            warnings.warn("This function has been deprecated since v1.3.0, you may use `get()` to get a cache objects")
+            warnings.warn(
+                "This function has been deprecated since v1.3.0, you may use `get()` to get a cache objects"
+            )
             return key in self._cache_dict
 
     def get_capacity(self) -> bool:
@@ -242,7 +244,7 @@ class LRUCache(BoundedLRUCache):
             if self._is_expired(key=key):
                 self._evict(key)
                 raise KeyError(f"Cache key '{key}' has expired and evicted")
-            
+
             access_time: float = time.perf_counter()
             self.cache.update(key, access_time)
             value = self._cache_dict[key][0]
