@@ -5,6 +5,7 @@ import time
 from unittest.mock import MagicMock
 from lru.lrucache import LRUCache
 
+
 class LRUCacheTest(unittest.TestCase):
     """Initial class for unittest. The test is
     pretty simple, only using True and False expression.
@@ -29,7 +30,7 @@ class LRUCacheTest(unittest.TestCase):
     def test_check_whether_cache_is_empty(self):
         self.testLRU.clear_all()
         self.assertTrue(self.testLRU.is_empty())
-    
+
     def test_get_cache_duration(self):
         self.assertTrue(self.testLRU.get_duration(expired_time=3600))
         self.assertFalse(self.testLRU.get_duration(expired_time=100))
@@ -76,7 +77,7 @@ class LRUCacheTest(unittest.TestCase):
         # returned values from MagicMock and mutated values
         cache = LRUCache()
         cache.lock = MagicMock()
-        
+
         fresh_time = time.perf_counter()
         cache._cache_dict = {1: ("key", fresh_time)}
 
@@ -90,7 +91,7 @@ class LRUCacheTest(unittest.TestCase):
         self.assertGreaterEqual(updated_time, fresh_time)
 
     def test_get_raises_on_expired_key(self):
-        # get() must raise KeyError and evict 
+        # get() must raise KeyError and evict
         # the entry when TTL has elapsed
         cache = LRUCache(capacity=10, seconds=1)
         cache.set(42, "haha")
@@ -104,7 +105,8 @@ class LRUCacheTest(unittest.TestCase):
             cache.get(42)
 
         self.assertNotIn(42, cache)
-    
+
+
 class LRUCacheTestInitialization(unittest.TestCase):
     """Initial class for unittest the initialization of LRUCache
     including the validation of the property
@@ -132,7 +134,7 @@ class LRUCacheTestInitialization(unittest.TestCase):
             LRUCache(seconds=None)
 
         with self.assertRaises(ValueError):
-            LRUCache(seconds=60*15*15*15)
+            LRUCache(seconds=60 * 15 * 15 * 15)
 
         with self.assertRaises(KeyError):
             cache = LRUCache(capacity=1)
@@ -159,5 +161,3 @@ class LRUCacheTestInitialization(unittest.TestCase):
         cache_1 = LRUCache(capacity=3)
         cache_2 = LRUCache(capacity=5)
         self.assertNotEqual(hash(cache_1), hash(cache_2))
-        
-    
