@@ -2,14 +2,15 @@
 
  ![PyPI - Status](https://img.shields.io/pypi/status/lruheap) [![Downloads](https://pepy.tech/badge/lruheap)](https://pepy.tech/project/lruheap) [![codecov](https://codecov.io/gh/sodrooome/lru-cache/branch/master/graph/badge.svg)](https://codecov.io/gh/sodrooome/lru-cache)
 
-Package for tracking store in-data memory using replacement cache algorithm / LRU cache. The Priority of storing or removing the data based on Min-Max heap algorithm or basic priority queue instead using OrderedDict module that provided by Python.
+**LRUCache** is a Python package for in-memory caching using the LRU (Least Recently Used) eviction policy. Unlike Python’s built-in `OrderedDict`-based approach, this implementation uses a min-heap priority queue to track access times, providing efficient eviction of the least recently used entry when the cache reaches capacity.
 
 **Features**
 
-- Zero dependencies, only implemented with Python without any external libraries
-- Granularity control for TTL expiration and thread safety
-- Cache inspection methods before initialization
-
+- Zero dependencies with pure Python, no external libraries
+- Granular TTL (time-to-live) expiration per cache entry
+- Optional thread-safe mode via `threading.RLock`
+- Cache introspection methods: inspect capacity, TTL, and contents at runtime
+- Decorator-based caching for function return values
 
 ## Usage
 
