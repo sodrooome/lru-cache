@@ -22,11 +22,13 @@ class Heap:
     def right_child(self, index: int) -> int:
         return (2 * index) + 2  # pragma: no cover
 
-    def build_push_down(self, index: int) -> Union[list, int]:
-        if min(self.heap):  # pragma: no cover
-            return self._build_push_down_heapify(index)
+    def build_push_down(self, index: int) -> list:
+        # the correct intent of this code supposed to be:
+        # if the  heap is empty, then swift up. Otherwise, swift down
+        if self.heap:
+            return self._build_push_down_heapify(index=index)
         else:
-            return self._build_push_up_heapify(index)
+            return self._build_push_up_heapify(index=index)
 
     def _single_child(self, index: int) -> bool:
         return self.left_child(index) < len(self.heap) and self.right_child(
@@ -42,71 +44,80 @@ class Heap:
             self.heap
         )  # pragma: no cover
 
-    def _build_push_down_heapify(self, index: int) -> list | None:
+    def _build_push_down_heapify(self, index: int) -> list:
         if not self._is_leaf(index):  # pragma: no cover
             if not self._single_child(index):  # pragma: no cover
+                left = self.left_child(index)
+                right = self.right_child(index)
+
+                # explicitly checks both children and parent
                 if (
-                    min(
-                        self.heap[self.left_child(index)][1],
-                        self.heap[self.right_child(index)][1],
-                    )
-                    >= self.heap[index][1]
-                ):  # pragma: no cover
+                    self.heap[left][1] >= self.heap[index][1]
+                    and self.heap[right][1] >= self.heap[index][1]
+                ):
                     return self.heap
 
-                if (
-                    self.heap[self.left_child(index)][1]
-                    >= self.heap[self.right_child(index)][1]
-                ):  # pragma: no cover
-                    return
-                self.heap[self.left_child(index)], self.heap[index] = (
-                    self.heap[index],
-                    self.heap[self.left_child(index)],
-                )
-                self._build_push_down_heapify(self.right_child(index))
+                # fixed at v1.3.0: wrong child is being swapped which is caused
+                # breaking the min-heap invariant. now it will be swapped
+                # with the right child first and then recursively on right side
+                if self.heap[left][1] <= self.heap[right][1]:
+                    self.heap[left], self.heap[index] = (
+                        self.heap[index],
+                        self.heap[left],
+                    )
+                    self._build_push_down_heapify(left)
+                else:
+                    self.heap[right], self.heap[index] = (
+                        self.heap[index],
+                        self.heap[right],
+                    )
+                    self._build_push_down_heapify(right)
                 return self.heap
 
-            if self.heap[self.left_child(index)][1] >= self.heap[index][1]:
+            # single left child only
+            left = self.left_child(index)
+            if self.heap[left][1] >= self.heap[index][1]:
                 pass
             else:
-                self.heap[self.left_child(index)], self.heap[index] = (
-                    self.heap[index],
-                    self.heap[self.left_child(index)],
-                )
+                self.heap[left], self.heap[index] = (self.heap[index], self.heap[left])
             return self.heap
 
         return self.heap
 
     @property
-    def build_floyd_heap(self) -> list | None:
+    def build_floyd_heap(self) -> list:
         """Build Min-Heap based on Floyd's linear-time heap construction algorithm."""
-        index: Union[Tuple[int, Any], Any]
-        for _ in enumerate(self.heap // 2):  # pragma: no cover
-            return self._build_push_down_heapify(self.heap)
+        # fixed at v1.3.0: heap object is iterates an over integer, not a list
+        # causing `TypeError` immediately. the correct intent must be iterates
+        # from backwards through all lists and then heapify the object from bottom
+        for index in range(len(self.heap) // 2 - 1, -1, -1):
+            self._build_push_down_heapify(index)
         return self.heap
 
     def _build_push_up_heapify(self, index: int) -> list:
         """Bubble up algorithm."""
-        if self.parent(index) < 0:
+        # fixed at v1.3.0: an old bug since 6 years ago which is silently
+        # accessed heap object from the last element instead of skipping it
+        if index <= 0:
+            return self.heap
+
+        parent = self.parent(index=index)
+        if self.heap[parent][1] <= self.heap[index][1]:
             pass
         else:
-            if self.heap[self.parent(index)][1] <= self.heap[index][1]:
-                pass
-            else:  # pragma: no cover
-                self.heap[self.parent(index)], self.heap[index] = (
-                    self.heap[index],
-                    self.heap[self.parent(index)],
-                )
-                self._build_push_up_heapify(self.parent(index))
-                return self.heap
+            self.heap[parent], self.heap[index] = (
+                self.heap[index],
+                self.heap[parent],
+            )
+            self._build_push_up_heapify(parent)
         return self.heap
 
     def validate_heapify(self) -> bool:
-        # WIP: fix this method
+        # fixed at v1.3.0: an old bug since 6 years ago, compare
+        # the root of element against heap object instead of skipping it
         for index, element in enumerate(self.heap):
-            if self.parent(index) >= 0:
+            if index > 0:
                 if self.heap[self.parent(index)][1] > self.heap[index][1]:
-                    print(self.heap[self.parent(index)], self.heap[index])
                     return False
         return True
 
@@ -117,11 +128,14 @@ class Heap:
 
     def remove(self) -> None:
         """Remove minimum element in index."""
-        minimum = self.heap[0]  # pragma: no cover
-        if minimum:
-            minimum = self.heap.pop()
+        # fixed at v1.3.0: correct approach should be swapped the root
+        # with the last element, and then popped out that last element,
+        # and then swift up the new root to restore the heap property
+        self.heap[0], self.heap[-1] = self.heap[-1], self.heap[0]
+        minimum = self.heap.pop()
+        if self.heap:
             self._build_push_down_heapify(0)
-            return minimum
+        return minimum
 
     def update(self, key: object, value: object) -> list:
         """Update key and value element in index."""

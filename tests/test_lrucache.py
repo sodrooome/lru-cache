@@ -1,8 +1,10 @@
 """Module for unittest."""
 
 import unittest
+import time
 from unittest.mock import MagicMock
 from lru.lrucache import LRUCache
+
 
 class LRUCacheTest(unittest.TestCase):
     """Initial class for unittest. The test is
@@ -19,8 +21,8 @@ class LRUCacheTest(unittest.TestCase):
         self.testLRU = None
 
     def test_get_cache_key(self):
-        self.assertTrue(self.testLRU.get_cache(1))
-        self.assertFalse(self.testLRU.get_cache(4))
+        self.assertIn(1, self.testLRU)
+        self.assertNotIn(4, self.testLRU)
 
     def test_get_cache_dict(self):
         self.assertTrue(self.testLRU.get_dict())
@@ -28,7 +30,7 @@ class LRUCacheTest(unittest.TestCase):
     def test_check_whether_cache_is_empty(self):
         self.testLRU.clear_all()
         self.assertTrue(self.testLRU.is_empty())
-    
+
     def test_get_cache_duration(self):
         self.assertTrue(self.testLRU.get_duration(expired_time=3600))
         self.assertFalse(self.testLRU.get_duration(expired_time=100))
@@ -59,7 +61,8 @@ class LRUCacheTest(unittest.TestCase):
         self.assertTrue(self.testLRU.__str__())
 
     def test_set_new_object(self):
-        self.assertTrue(self.testLRU.set(1, "test4"))
+        self.testLRU.set(1, "updated test")
+        self.assertEqual(self.testLRU.get(1), "updated test")
 
     def test_scale_capacity(self):
         self.assertTrue(self.testLRU(capacity=300))
@@ -74,16 +77,35 @@ class LRUCacheTest(unittest.TestCase):
         # returned values from MagicMock and mutated values
         cache = LRUCache()
         cache.lock = MagicMock()
+
+        fresh_time = time.perf_counter()
+        cache._cache_dict = {1: ("key", fresh_time)}
+
+        cache._has_key = MagicMock(return_value=True)
         cache.cache = MagicMock()
-        cache.get_cache = MagicMock(return_value=True)
 
-        initial_time = 1.0
-        cache._cache_dict = {1: ("value", initial_time)}
         value = cache.get(1)
+        self.assertEqual(value, "key")
 
-        self.assertEqual(value, "value")
-        self.assertEqual(cache._cache_dict[1][0], "value")
-        self.assertNotEqual(cache._cache_dict[1][1], initial_time)
+        _, updated_time = cache._cache_dict[1]
+        self.assertGreaterEqual(updated_time, fresh_time)
+
+    def test_get_raises_on_expired_key(self):
+        # get() must raise KeyError and evict
+        # the entry when TTL has elapsed
+        cache = LRUCache(capacity=10, seconds=1)
+        cache.set(42, "haha")
+
+        value, _ = cache._cache_dict[42]
+        # simulate the TTL elapsing based on the
+        # sorted timestamp. 2 seconds > 1 second
+        cache._cache_dict[42] = (value, time.perf_counter() - 2)
+
+        with self.assertRaises(KeyError):
+            cache.get(42)
+
+        self.assertNotIn(42, cache)
+
 
 class LRUCacheTestInitialization(unittest.TestCase):
     """Initial class for unittest the initialization of LRUCache
@@ -112,7 +134,7 @@ class LRUCacheTestInitialization(unittest.TestCase):
             LRUCache(seconds=None)
 
         with self.assertRaises(ValueError):
-            LRUCache(seconds=60*15*15*15)
+            LRUCache(seconds=60 * 15 * 15 * 15)
 
         with self.assertRaises(KeyError):
             cache = LRUCache(capacity=1)
@@ -139,5 +161,3 @@ class LRUCacheTestInitialization(unittest.TestCase):
         cache_1 = LRUCache(capacity=3)
         cache_2 = LRUCache(capacity=5)
         self.assertNotEqual(hash(cache_1), hash(cache_2))
-        
-    

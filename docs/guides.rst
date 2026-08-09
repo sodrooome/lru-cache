@@ -6,9 +6,17 @@ Guides
     :target: https://pepy.tech/badge/lruheap
     :alt: Downloads
 
+.. image:: https://img.shields.io/pypi/pyversions/lruheap
+    :target: https://img.shields.io/pypi/pyversions/lruheap
+    :alt: PyPI - Python Version
+
 .. image:: https://img.shields.io/pypi/status/lruheap
     :target: https://img.shields.io/pypi/status/lruheap
     :alt: Status
+
+.. image:: https://img.shields.io/pypi/types/lruheap
+    :target: https://img.shields.io/pypi/types/lruheap
+    :alt: PyPI - Types
 
 .. image:: https://codecov.io/gh/sodrooome/lru-cache/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/sodrooome/lru-cache/branch/master/graph/badge.svg

@@ -1,11 +1,13 @@
 from lru.decorators import lru_cache_time
 
+
 # decorators for caching an object
 # based on function
 @lru_cache_time(capacity=3, seconds=15)
 def lru_with_decorators(x):
     print("Calling {0}".format(x))
     return x
+
 
 # set the "x" object that wants to
 # be cached
