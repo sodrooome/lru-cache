@@ -2,6 +2,47 @@
 Release History
 ===============
 
+v1.3.1 (2026-08-22)
+-------------------
+
+.. rubric:: Bug fixes
+
+- Fixed ``__eq__`` guard using ``isinstance(other, object)`` which is always ``True``, making the ``NotImplemented`` branch unreachable and causing ``AttributeError`` when comparing against non-``LRUCache`` objects
+
+.. rubric:: Improvements
+
+- Improved test coverage from 94 % to 100 % for core modules (``lru.lrucache``, ``lru.heap``, ``lru.version``, ``lru.utils``)
+- Added test cases covering ``LRUCache`` capacity eviction, TTL expiry on ``get_ttl()``, empty ``get_lru_element()``, ``clear_cache_key()`` no-op, ``get_dict()`` shallow copy, ``__call__`` and deprecation warning for ``get_cache()``
+- Added tests covering thread-safe mode (``thread_safe=True``) with real ``RLock``
+- Added tests covering ``Heap.build_push_down`` empty-heap branch and the ``Heap`` stress sequence
+- Added tests covering decorator return-value correctness and capacity eviction for ``lru_cache``
+- Added dedicated test modules for ``lru.version`` and ``lru.utils`` (``BypassThreadSafe`` and ``generate_hash_key``)
+- Backfilled the missing v1.3.0 release notes entry
+
+v1.3.0 (2026-08-09)
+-------------------
+
+.. rubric:: Bug fixes
+
+- Fixed wrong child being swapped during heap ``_build_push_down_heapify`` which broke the min-heap invariant; the correct child is now swapped and recursion continues on the right side
+- Fixed ``build_floyd_heap`` iterating over an integer instead of a list, raising ``TypeError`` immediately
+- Fixed ``_build_push_up_heapify`` silently accessing the heap from the last element instead of skipping it
+- Fixed ``remove()`` not swapping the root with the last element before popping and sifting down
+- Fixed ``validate_heapify`` comparing the root against itself instead of skipping it
+- Fixed correct heap object swap, validated heapify and Floyd's build
+
+.. rubric:: Improvements
+
+- Enforced TTL on every read; expired entries are now evicted as early as possible
+- Deprecated ``get_cache()`` in favour of the ``__contains__`` protocol (``key in cache``) and ``get()``
+- ``get_dict()`` now returns a shallow copy under the lock
+- Safe ``get_lru_element()`` returning ``None`` on empty cache
+- Extracted internal helpers ``_has_key``, ``_is_expired``, ``_evict`` to avoid the double-lock fragility of the old ``get_cache()`` call path
+- Added PEP 561 marker (``py.typed``) for typed package distribution
+- Added comprehensive tests for the ``Heap`` class
+- Updated documentation and roadmap for the v1.3.0 API changes
+- Added release history page and switched docs theme to Shibuya
+
 v1.2.0 (2026-05-16)
 -------------------
 
