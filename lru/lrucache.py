@@ -63,7 +63,7 @@ class LRUCache(BoundedLRUCache):
 
     def __eq__(self, other: object):
         """Compare two LRUCache objects for the hashing equality"""
-        if not isinstance(other, object):
+        if not isinstance(other, LRUCache):
             return NotImplemented
         return self._cache_dict == other._cache_dict
 
