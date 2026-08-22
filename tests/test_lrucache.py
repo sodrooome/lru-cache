@@ -1,9 +1,12 @@
 """Module for unittest."""
 
+import threading
 import unittest
 import time
+import warnings
 from unittest.mock import MagicMock
 from lru.lrucache import LRUCache
+from lru.heap import Heap
 
 
 class LRUCacheTest(unittest.TestCase):
@@ -105,6 +108,105 @@ class LRUCacheTest(unittest.TestCase):
             cache.get(42)
 
         self.assertNotIn(42, cache)
+
+    def test_set_evicts_lru_when_capacity_full(self):
+        cache = LRUCache(capacity=3, seconds=900)
+        cache.set(1, "a")
+        cache.set(2, "b")
+        cache.set(3, "c")
+
+        # access key 1 so it becomes most recently used,
+        # making key 2 the LRU candidate for eviction
+        cache.get(1)
+
+        cache.set(4, "d")
+
+        self.assertNotIn(2, cache)
+        self.assertIn(1, cache)
+        self.assertIn(3, cache)
+        self.assertIn(4, cache)
+
+    def test_set_updates_existing_key_in_place(self):
+        cache = LRUCache(capacity=3)
+        cache.set(1, "a")
+        cache.set(1, "b")
+
+        self.assertEqual(len(cache), 1)
+        self.assertEqual(cache.get(1), "b")
+
+    def test_get_ttl_evicts_expired_entry(self):
+        cache = LRUCache(capacity=10, seconds=1)
+        cache.set(7, "value")
+
+        value, _ = cache._cache_dict[7]
+        # simulate TTL elapsing: 2 seconds ago > 1 second TTL
+        cache._cache_dict[7] = (value, time.perf_counter() - 2)
+
+        self.assertFalse(cache.get_ttl(7))
+        self.assertNotIn(7, cache)
+
+    def test_get_lru_element_returns_none_when_empty(self):
+        cache = LRUCache(capacity=3)
+        self.assertIsNone(cache.get_lru_element())
+
+    def test_clear_cache_key_missing_is_noop(self):
+        cache = LRUCache(capacity=3)
+        cache.set(1, "a")
+        cache.clear_cache_key(99)
+        self.assertIn(1, cache)
+        self.assertEqual(len(cache), 1)
+
+    def test_get_dict_returns_shallow_copy(self):
+        cache = LRUCache(capacity=3)
+        cache.set(1, "a")
+        snapshot = cache.get_dict()
+        snapshot[1] = "mutated"
+
+        self.assertEqual(cache.get(1), "a")
+
+    def test_call_returns_heap_object(self):
+        cache = LRUCache(capacity=3)
+        self.assertIsInstance(cache(), Heap)
+
+    def test_get_cache_emits_deprecation_warning(self):
+        cache = LRUCache(capacity=3)
+        cache.set(1, "a")
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            self.assertTrue(cache.get_cache(1))
+            self.assertFalse(cache.get_cache(99))
+
+        self.assertEqual(len(caught), 2)
+        self.assertTrue(issubclass(caught[0].category, UserWarning))
+
+    def test_thread_safe_mode_uses_real_lock(self):
+        cache = LRUCache(capacity=3, thread_safe=True)
+        self.assertIsInstance(cache.lock, type(threading.RLock()))
+
+    def test_thread_safe_concurrent_set_get(self):
+        cache = LRUCache(capacity=128, thread_safe=True)
+        threads = []
+
+        def worker(n):
+            cache.set(n, n * 2)
+            self.assertEqual(cache.get(n), n * 2)
+
+        for n in range(50):
+            threads.append(threading.Thread(target=worker, args=(n,)))
+
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        self.assertEqual(len(cache), 50)
+
+    def test_eq_with_non_lrucache_returns_notimplemented(self):
+        cache = LRUCache(capacity=3)
+        # comparing against a plain object hits the NotImplemented branch;
+        # Python falls back to identity comparison which is False here
+        self.assertNotEqual(cache, object())
 
 
 class LRUCacheTestInitialization(unittest.TestCase):

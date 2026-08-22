@@ -170,6 +170,17 @@ class TestHeap(unittest.TestCase):
         self.assertTrue(self.heap._is_leaf(2))
         self.assertTrue(self.heap._is_leaf(3))
 
+    def test_build_push_down_empty_heap_uses_push_up(self):
+        result = self.heap.build_push_down(0)
+        self.assertEqual(result, [])
+        self.assertEqual(self.heap.heap, [])
+
+    def test_build_push_down_non_empty_uses_push_down(self):
+        self.heap.heap = [(1, 5.0), (2, 10.0)]
+        result = self.heap.build_push_down(0)
+        self.assertIs(result, self.heap.heap)
+        self.assertTrue(self.heap.validate_heapify())
+
     def test_stress_sequence(self):
         ops = [
             ("add", 1, 10.0),
@@ -177,9 +188,9 @@ class TestHeap(unittest.TestCase):
             ("add", 3, 8.0),
             ("add", 4, 1.0),
             ("add", 5, 7.0),
-            ("remove", None, None), # should removes these lists (4, 1.0)
+            ("remove", None, None),  # should removes these lists (4, 1.0)
             ("add", 6, 3.0),
-            ("update", 2, 12.0), # 2 was minimum, now 12.0 and it must be sift down
+            ("update", 2, 12.0),  # 2 was minimum, now 12.0 and it must be sift down
             ("remove_key", 3, None),
             ("add", 7, 0.5),
         ]
