@@ -2,7 +2,7 @@
 Roadmap
 =======
 
-The current stable version is **1.1.0**. Here is the progress on planned
+The current stable version is **1.3.1**. Here is the progress on planned
 features:
 
 Completed — base features (v1.1.0)
